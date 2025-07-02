@@ -48,6 +48,11 @@ contract RizalLibrary {
         require(msg.sender != librarian , "You are not a student!");
         _;
     }
+    
+    modifier isLibrarian() {
+        require(msg.sender == librarian, "You are not a librarian!");
+        _;
+    }
 
     modifier noBorrowedBook() {
         require(!students[msg.sender].hasBorrowed, "You already borrowed. Not allowed to borrow more!");
@@ -83,10 +88,12 @@ contract RizalLibrary {
 
     }
 
-    function borrow(uint _bookCallNum) external isEnrolled noBorrowedBook {
-        //checks if student is allowed to borrow a book
-        //something that will say the book is borrowed
-        //emit book
+    function borrow(uint _bookCallNum) external isEnrolled noHoldOrder noBorrowedBook {
+        students[msg.sender].hasBorrowed = true;
+        //so in returnBook, check if block.timestamp is greater than the deadline of Book
+        students[msg.sender].bookBorrowed = Book(_bookCallNum, int(block.timestamp + 2 weeks));
+        
+        emit BookBorrowed(_bookCallNum, msg.sender);
     }
 
     function returnBook() external isEnrolled hasBorrowedBook {
