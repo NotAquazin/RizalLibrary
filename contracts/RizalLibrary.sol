@@ -82,9 +82,9 @@ contract RizalLibrary {
         librarian = msg.sender;
     }
 
-    function addStudent(address _student, uint _idnumber, string _name) public isLibrarian notEnrolled {
-        students[_student].idnumber = _idnumber
-        students[_student].name = _name 
+    function addStudent(address _student, uint _idnumber, string memory _name) public isLibrarian notEnrolled {
+        students[_student].idnumber = _idnumber ;
+        students[_student].name = _name ;
     }
 
     function borrow(uint _bookCallNum) external isEnrolled noHoldOrder noBorrowedBook {
@@ -98,7 +98,14 @@ contract RizalLibrary {
     function returnBook() external isEnrolled hasBorrowedBook {
         //no need for parameter since there's only 1 book per student
         //this will let student to return the book, check if student has borrowed a book (checked through the modifier)
-
+        
+        int current = int(block.timestamp);
+        if (current >= students[msg.sender].bookBorrowed.borrowDeadline){
+            students[msg.sender].hasHoldOrder = true;
+            students[msg.sender].balance = 50000 wei;
+        }
+        students[msg.sender].hasBorrowed = false;
+        students[msg.sender].bookBorrowed = Book(0 , 0);
         //if yes then check it is returned within the deadline.
         //If past deadline, add the penalty to the student (hold order and balance)
     }
