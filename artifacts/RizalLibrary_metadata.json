@@ -146,11 +146,11 @@
 	},
 	"sources": {
 		"contracts/RizalLibrary.sol": {
-			"keccak256": "0x76644a7042903dad7644edc7b3523876bdf35bc3dd2d9fdfe1483c1504880a7a",
+			"keccak256": "0x86151d3e7c2a3f534d454f813934725bbf6ad40410605c11b4dd52207ced8c78",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://26f427edeafb59cbc74f2ff96f8f9c67e4d4da4a9e26d99e1cf5ad68a7b615b4",
-				"dweb:/ipfs/QmSxNJbXiT6dU5VtGfgcZUbV9SsQ9TcSUs7EoBYbFfqPKB"
+				"bzz-raw://b673d725216ddd5483c2375eb94d7b2d3f949673add5e50b4ed817c1668af174",
+				"dweb:/ipfs/QmQ3cqyaW75dxy1567EizKi9AfZn2em1j2UBkcY7tp2jb8"
 			]
 		}
 	},

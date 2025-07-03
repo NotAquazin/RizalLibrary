@@ -28,19 +28,19 @@ contract RizalLibrary {
         string name;
         uint balance;
         bool hasBorrowed;
-        bool hasHoldOrder;
+        bool holdOrder;
         Book bookBorrowed;
     }
 
     mapping(address => Student) private students;
 
     modifier noHoldOrder() {
-        require(students[msg.sender].hasHoldOrder == false, "You have a Hold Order. Not allowed to borrow!");
+        require(students[msg.sender].holdOrder == false, "You have a Hold Order. Not allowed to borrow!");
         _;
     }
 
     modifier hasHoldOrder(){
-        require(students[msg.sender].hasHoldOrder == true, "You do not have a Hold Order. You do not have an outstanding balance");
+        require(students[msg.sender].holdOrder == true, "You do not have a Hold Order. You do not have an outstanding balance");
         _;
     }
 
@@ -83,37 +83,55 @@ contract RizalLibrary {
         students[_student].name = _name ;
     }
 
-    function borrow(uint _bookCallNum) external isEnrolled noHoldOrder noBorrowedBook {
+    function borrow(uint _bookCallNum) external isStudent isEnrolled noHoldOrder noBorrowedBook {
         students[msg.sender].hasBorrowed = true;
         //so in returnBook, check if block.timestamp is greater than the deadline of Book
-        students[msg.sender].bookBorrowed = Book(_bookCallNum, int(block.timestamp + 2 weeks));
+        students[msg.sender].bookBorrowed = Book(_bookCallNum, int(getTime() + 2 weeks));
         
         emit BookBorrowed(_bookCallNum, msg.sender);
     }
 
-    function returnBook() external isEnrolled hasBorrowedBook {
+    function returnBook() external isStudent isEnrolled hasBorrowedBook {
         //no need for parameter since there's only 1 book per student
         //this will let student to return the book, check if student has borrowed a book (checked through the modifier)
         
-        int current = int(block.timestamp);
-        if (current >= students[msg.sender].bookBorrowed.borrowDeadline){
-            students[msg.sender].hasHoldOrder = true;
+        int current = int(getTime());
+        if (current >= students[msg.sender].bookBorrowed.borrowDeadline) {
+            students[msg.sender].holdOrder = true;
             students[msg.sender].balance = 50000 wei;
         }
         students[msg.sender].hasBorrowed = false;
         students[msg.sender].bookBorrowed = Book(0 , 0);
+
         //if yes then check it is returned within the deadline.
         //If past deadline, add the penalty to the student (hold order and balance)
     }
 
-    function payBalance() external payable hasHoldOrder {
+    function payBalance() external payable isStudent isEnrolled hasHoldOrder {
         //check if the student payment is equals to their hold order
         require(students[msg.sender].balance == msg.value, "Please pay the exact amount of the fine");
 
         // balance is now 0
         students[msg.sender].balance -= msg.value;
-        students[msg.sender].hasHoldOrder = false;
+        students[msg.sender].holdOrder = false;
 
         emit StudentPaid(msg.sender, msg.value);
+    }
+
+    function getTime() internal view virtual returns (uint) {
+        return block.timestamp;
+    }
+}
+
+
+contract TestBookContract is RizalLibrary {
+    uint fakeTime;
+
+    function setTime(uint _fakeTime) public {
+        fakeTime = _fakeTime;
+    }
+
+    function getTime() internal view override returns (uint) {
+        return fakeTime;
     }
 }
