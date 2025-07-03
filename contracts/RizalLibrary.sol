@@ -32,7 +32,7 @@ contract RizalLibrary {
         Book bookBorrowed;
     }
 
-    mapping(address => Student) public students;
+    mapping(address => Student) private students;
 
     modifier noHoldOrder() {
         require(students[msg.sender].hasHoldOrder == false, "You have a Hold Order. Not allowed to borrow!");
@@ -64,11 +64,6 @@ contract RizalLibrary {
         _;
     }
 
-    modifier notEnrolled() {
-        require(students[msg.sender].idnumber == 0, "You are already enrolled!");
-        _;
-    }
-
     modifier isEnrolled() {
         require(students[msg.sender].idnumber > 0, "You are not yet enrolled!");
         _;
@@ -82,7 +77,8 @@ contract RizalLibrary {
         librarian = msg.sender;
     }
 
-    function addStudent(address _student, uint _idnumber, string memory _name) public isLibrarian notEnrolled {
+    function addStudent(address _student, uint _idnumber, string memory _name) public isLibrarian {
+        require(students[_student].idnumber == 0, "Student already enrolled!");
         students[_student].idnumber = _idnumber ;
         students[_student].name = _name ;
     }
@@ -111,8 +107,13 @@ contract RizalLibrary {
     }
 
     function payBalance() external payable hasHoldOrder {
-        //checks if student has an outstanding balance or hold order
-        //if so, subtract the amount paid from their balance and set the student hasBorrowed to false. If not, then tell them that they do not have a valid hold order (or outstanding balance)
-        //emit event for payment
+        //check if the student payment is equals to their hold order
+        require(students[msg.sender].balance == msg.value, "Please pay the exact amount of the fine");
+
+        // balance is now 0
+        students[msg.sender].balance -= msg.value;
+        students[msg.sender].hasHoldOrder = false;
+
+        emit StudentPaid(msg.sender, msg.value);
     }
 }
