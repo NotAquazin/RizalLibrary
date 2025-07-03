@@ -82,10 +82,9 @@ contract RizalLibrary {
         librarian = msg.sender;
     }
 
-    function addStudent(address _student) public isStudent notEnrolled {
-        //adds student to students list with given id number and name
-        
-
+    function addStudent(address _student, uint _idnumber, string _name) public isLibrarian notEnrolled {
+        students[_student].idnumber = _idnumber
+        students[_student].name = _name 
     }
 
     function borrow(uint _bookCallNum) external isEnrolled noHoldOrder noBorrowedBook {
