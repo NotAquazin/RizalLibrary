@@ -1,0 +1,265 @@
+{
+	"compiler": {
+		"version": "0.8.30+commit.73712a01"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_itemId",
+						"type": "uint256"
+					}
+				],
+				"name": "borrow",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_borrower",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_itemId",
+						"type": "uint256"
+					}
+				],
+				"name": "flag",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "flags",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getListedAssets",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "owner",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "rental_fee",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "borrowed",
+								"type": "bool"
+							},
+							{
+								"internalType": "address",
+								"name": "currentContract",
+								"type": "address"
+							}
+						],
+						"internalType": "struct Asset[]",
+						"name": "",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_name",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_rental_fee",
+						"type": "uint256"
+					}
+				],
+				"name": "listItem",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "listedAssets",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "rental_fee",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "borrowed",
+						"type": "bool"
+					},
+					{
+						"internalType": "address",
+						"name": "currentContract",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_itemId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "_borrower",
+						"type": "address"
+					}
+				],
+				"name": "markReturned",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "payPenalty",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {
+				"borrow(uint256)": {
+					"params": {
+						"_itemId": "The index of the asset in the list"
+					}
+				},
+				"flag(address,uint256)": {
+					"params": {
+						"_borrower": "The address of the borrower to be flagged",
+						"_itemId": "The index of the borrowed asset"
+					}
+				},
+				"getListedAssets()": {
+					"returns": {
+						"_0": "An array of all listed assets"
+					}
+				},
+				"listItem(string,uint256)": {
+					"params": {
+						"_name": "The name of the asset",
+						"_rental_fee": "The rental fee for borrowing the asset"
+					}
+				},
+				"markReturned(uint256,address)": {
+					"params": {
+						"_itemId": "The index of the asset in the list"
+					}
+				}
+			},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {
+				"borrow(uint256)": {
+					"notice": "Borrow an asset by ID, paying rental and deposit fees"
+				},
+				"flag(address,uint256)": {
+					"notice": "Flag a borrower who returned an asset late (can only be called by the AssetContract)"
+				},
+				"getListedAssets()": {
+					"notice": "Retrieve the full list of listed assets"
+				},
+				"listItem(string,uint256)": {
+					"notice": "List a new asset for lending"
+				},
+				"markReturned(uint256,address)": {
+					"notice": "Mark an asset as returned (can only be called by the AssetContract)"
+				},
+				"payPenalty()": {
+					"notice": "Pay the penalty fee to remove the flagged status"
+				}
+			},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/AteneoAssetLending.sol": "AteneoLendingContract"
+		},
+		"evmVersion": "prague",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/AteneoAssetLending.sol": {
+			"keccak256": "0x5e4bd3e9a33193150a9280d1d655830b740300546cedf822bc25cf5e87a28410",
+			"license": "GPL-3.0",
+			"urls": [
+				"bzz-raw://95697f39440cc27f5846ea64dc86a22e6da0bf3977e3efb2410313e3ded1538e",
+				"dweb:/ipfs/QmPsHjpZUMjjYknnNqiZERrWwZ9RwTRB5M1udw56Acus27"
+			]
+		}
+	},
+	"version": 1
+}

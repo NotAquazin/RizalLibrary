@@ -119,8 +119,10 @@
 			}
 		],
 		"devdoc": {
+			"details": "Implement a smart contract for the rizal library that stores students details tracks the borrowing of books, and assists with the payment of fees  ",
 			"kind": "dev",
 			"methods": {},
+			"title": "RizalLibrary",
 			"version": 1
 		},
 		"userdoc": {
@@ -146,11 +148,11 @@
 	},
 	"sources": {
 		"contracts/RizalLibrary.sol": {
-			"keccak256": "0x3e81f0250a7164314937c3c3ee164c14a31fbf49d4f73f29b6b4865b8c7f9fef",
+			"keccak256": "0x50279f9b5a44f4ad2e128a6b320a4b51eb6fb98c349ca894de9c4739d435a06c",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://1aeec825552e7c70d71188448a0328cabe99f33c761298b6702c2432cec83cb4",
-				"dweb:/ipfs/QmZA6Yb5DdonfG6C62X3nWNvyYzWRDFnFe5zphqBojDv9t"
+				"bzz-raw://f57fb307950ced0bb341cdbdc4881cb3b8db5cda77335230dbb3c8dc5911bf3c",
+				"dweb:/ipfs/QmVBM7NAtWPgCYj81X7rtsCYbiFWs78CeDvLUBxPGoUnJo"
 			]
 		}
 	},
