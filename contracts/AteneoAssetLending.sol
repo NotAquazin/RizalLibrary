@@ -93,7 +93,7 @@ contract AteneoLendingContract {
     /// @notice Retrieve the full list of listed assets
     /// @return An array of all listed assets
     function getListedAssets() public view returns (Asset[] memory) {
-        // TO ADD: Return the array of listed assets
+        return listedAssets;
     }
 }
 
@@ -129,7 +129,12 @@ contract AssetContract {
     function returnItem() external {
         // TO ADD: Verify the borrower
         // TO ADD: Verify if the asset has already been returned
-        
         // TO ADD: Handle return actions, update the return status, check return timestamp, and handle penalties if overdue
+        require(borrower == msg.sender);
+        require(!returned, "This asset has already been returned.");
+        returned = true;
+        if ((block.timestamp >= deadline)) {
+                AteneoLendingContract(parent).payPenalty(); // Send the penalty fee as Ether to the asset's AteneoLendingContract
+        }
     }
 }
