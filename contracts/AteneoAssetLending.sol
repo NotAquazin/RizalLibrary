@@ -37,6 +37,7 @@ contract AteneoLendingContract {
     /// @notice Modifier that checks if user is not flagged
     modifier notBorrowing() {
         // TO ADD: Modifier to check if user is not currently borrowing an asset
+        require(borrowers[msg.sender] != true, "You are already borrowing an asset!");
         _;
     }
 
@@ -84,6 +85,9 @@ contract AteneoLendingContract {
     /// @notice Pay the penalty fee to remove the flagged status
     function payPenalty() external payable flagged {
         // TO ADD: Check penalty payment amount and update borrower status
+        require(msg.value >= PENALTY, "Insufficient penalty fee amount!");
+    
+        flags[msg.sender] = false;
     }
 
     /// @notice Retrieve the full list of listed assets
@@ -113,6 +117,12 @@ contract AssetContract {
     /// @param _itemId The index of the borrowed asset
     constructor(address _parent, address _owner, address _borrower, uint _itemId) {
         // TO ADD: Constructor function statements
+        parent = _parent;
+        owner = _owner;
+        borrower = _borrower;
+        itemId = _itemId;
+        deadline = block.timestamp + duration;
+        returned = false;
     }
 
     /// @notice Called by borrower to return the item, returns the deposit fee, and triggers penalty if overdue
