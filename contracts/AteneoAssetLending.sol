@@ -45,6 +45,7 @@ contract AteneoLendingContract {
     /// @param _rental_fee The rental fee for borrowing the asset
     function listItem(string memory _name, uint _rental_fee) external {
         // TO ADD: Add asset to the list of available assets
+        listedAssets.push(Asset({owner: msg.sender, name: _name, rental_fee: _rental_fee, borrowed: false, currentContract: address(0)}));
     }
 
     /// @notice Borrow an asset by ID, paying rental and deposit fees
@@ -53,8 +54,13 @@ contract AteneoLendingContract {
         // TO ADD: Check if _itemId is valid
         // TO ADD: Check if asset is already borrowed
         // TO ADD: Check if the payment is correct
+        require(_itemId < listedAssets.length, "ItemID is invalid!");
+        require(listedAssets[_itemId].borrowed == false, "Item is already borrowed!");
+        require(msg.value == listedAssets[_itemId].rental_fee + DEPOSIT, "Incorrect payment, make sure to add the deposit fee!");
 
         // TO ADD: Handle borrowing action, transfer deposit and rental fees, and update borrower and item status
+        listedAssets[_itemId].borrowed = true;
+
     }
 
     /// @notice Mark an asset as returned (can only be called by the AssetContract)
