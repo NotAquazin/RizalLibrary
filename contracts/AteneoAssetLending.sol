@@ -24,6 +24,7 @@ contract AteneoLendingContract {
     /// @notice Modifier that checks if user is flagged
     modifier flagged() {
         // TO ADD: Modifier to check if user is flagged, else revert with an error message saying that user is not flagged
+        require(flags[msg.sender] == true, "You are not flagged!");
         _;
     }
 

@@ -6,6 +6,32 @@
 	"output": {
 		"abi": [
 			{
+				"inputs": [],
+				"name": "DEPOSIT",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "PENALTY",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "uint256",
@@ -253,11 +279,11 @@
 	},
 	"sources": {
 		"contracts/AteneoAssetLending.sol": {
-			"keccak256": "0x5e4bd3e9a33193150a9280d1d655830b740300546cedf822bc25cf5e87a28410",
+			"keccak256": "0x16f1415b4db8c0b560bf34376a6faaec6ee46f2663368a916de6c3987b04cfab",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://95697f39440cc27f5846ea64dc86a22e6da0bf3977e3efb2410313e3ded1538e",
-				"dweb:/ipfs/QmPsHjpZUMjjYknnNqiZERrWwZ9RwTRB5M1udw56Acus27"
+				"bzz-raw://62dca2a7595540784063668855d5a37de19156229e2298fcc1adf69139eb198d",
+				"dweb:/ipfs/QmQ3NA1zneQyKcdhiAD5ndzPLRD1EgNFeu9yKyiSs7s54n"
 			]
 		}
 	},
