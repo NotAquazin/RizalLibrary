@@ -14,6 +14,8 @@ contract AteneoLendingContract {
 
     // TO ADD: Set the penalty fee for returning an asset late
     // TO ADD: Set the security deposit for all borrowers 
+    uint public constant PENALTY = 2000000 wei;
+    uint public constant DEPOSIT = 1000000 wei;
 
     mapping(address => bool) public flags; // Mapping of flagged users
     mapping(address => bool) private borrowers; // Mapping of borrowers and borrowing status
