@@ -32,6 +32,7 @@ contract AteneoLendingContract {
     modifier notFlagged() {
         // TO ADD: Modifier to check if user is not flagged, else revert with an error message for paying penalty
         _;
+        require(flags[msg.sender] == false, "You are flagged and must pay penalty!");
     }
 
     /// @notice Modifier that checks if user is not flagged
@@ -68,9 +69,15 @@ contract AteneoLendingContract {
     /// @param _itemId The index of the asset in the list
     function markReturned(uint _itemId, address _borrower) external {
         // TO ADD: Validate if caller is AssetContract
+        require(msg.sender == listedAssets[_itemId].currentContract, "You are not part of the AssetContract!");
+        
         // TO ADD: Validate if asset is borrowed
+        require(listedAssets[_itemId].borrowed == true, "Item is not borrowed!");
 
         // TO ADD: Update borrower and item status
+        listedAssets[_itemId].borrowed = false;
+        listedAssets[_itemId].currentContract = address(0);
+        borrowers[_borrower] = false;
     }
 
     /// @notice Flag a borrower who returned an asset late (can only be called by the AssetContract)
@@ -78,8 +85,16 @@ contract AteneoLendingContract {
     /// @param _itemId The index of the borrowed asset
     function flag(address _borrower, uint _itemId) external {
         // TO ADD: Validate _itemId
+        require(_itemId < listedAssets.length, "ItemID is invalid!");
+
         // TO ADD: Validate if caller is AssetContract
+        require(msg.sender == listedAssets[_itemId].currentContract, "You are not part of the AssetContract!");
+
         // TO ADD: Update borrower status
+        flags[_borrower] = true;
+        listedAssets[_itemId].borrowed = false;
+        listedAssets[_itemId].currentContract = address(0);
+        borrowers[_borrower] = false;
     }
 
     /// @notice Pay the penalty fee to remove the flagged status
