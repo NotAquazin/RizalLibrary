@@ -18,8 +18,7 @@ contract IngredientTracker {
     address restaurant;
     address supplier;
 
-    
-    enum STATUS {InStorage, Shipped, Arrived, Completed}
+    enum STATUS {InStorage, Finalized, Shipped, Arrived, Completed}
 
     //Ingredient and its respective quantity
     struct Stock{
@@ -28,26 +27,112 @@ contract IngredientTracker {
     }
 
     //The details of the contract
-    struct details{
+    struct Details{
         string date;
         uint discount;
         uint refundPrice; 
         uint finalPrice;
         STATUS status; 
     }
-    Stock[] public ingredientsList;
 
-    //Initializing the Restaurant - supplier contract relationship
-    constructor(address _supplier){
-        supplier = _supplier;
+    // i made this a struct because a restaurant can have multiple orders -mady
+    struct Order {
+        uint id;
+        address supplier;
+        Stock[] ingredients;
+        Details details;
     }
 
-    function addIngredient(string memory _ingredient, uint _qty) public{
-        ingredientsList.push(Stock({ingredient: _ingredient, qty : _qty}));
+    mapping(uint => Order) public orders;
+    uint public orderCount;
+
+    //restaurant initializes the contract
+    constructor(){
+        restaurant = msg.sender;
     }
 
-    function getIngredientsList() public view returns (Stock[] memory){
-        return ingredientsList;
+
+    //check if caller is restaurant
+    modifier isRestaurant() {
+        require(msg.sender == restaurant, "You are not the restaurant!");
+        _;
     }
 
+    //check if caller is supplier
+    modifier isSupplier(uint orderId) {
+        require(msg.sender == orders[orderId].supplier, "You are not the authorized supplier!");
+        _;
+    }
+
+    //check if order is shipped
+    modifier isShipped(uint orderId) {
+        require(orders[orderId].details.status == STATUS.Shipped, "Order has not been shipped!");
+        _;
+    }
+    
+    //check if order has arrived
+    modifier hasArrived(uint orderId) {
+        require(orders[orderId].details.status == STATUS.Arrived, "Order has not arrived!");
+        _;
+    }
+
+    modifier isFinalized(uint orderId) {
+        require(orders[orderId].details.status == STATUS.Finalized, "Order is not finalized by restaurant!");
+        _;
+    }
+
+    //restaurant initiates empty order with supplier
+    function createOrder(address _supplier) public isRestaurant {
+        orderCount++;
+        Order storage newOrder = orders[orderCount];
+        newOrder.id = orderCount;
+        newOrder.supplier = _supplier;
+        newOrder.details.status = STATUS.InStorage; 
+    }
+
+    //supplier changes order status to shipped
+    function shipOrder(uint orderId) public isSupplier(orderId) {
+        orders[orderId].details.status = STATUS.Shipped;
+    }
+    
+    //restaurant changes shipped order status to arrived  
+    function orderArrived(uint orderId) public isShipped(orderId) isRestaurant {
+        orders[orderId].details.status = STATUS.Arrived;
+    }
+    
+    //edited uriels og function 
+    function addIngredient(uint orderId, string memory _ingredient, uint _qty) isRestaurant public{
+        orders[orderId].ingredients.push(Stock({ingredient: _ingredient, qty : _qty}));
+    }
+
+    //did same thing with this
+    function getIngredientsList(uint orderId) public view returns (Stock[] memory){
+        return orders[orderId].ingredients;
+    }
+
+    //restaurant finalizes order, so no more updating
+    function finalizeOrder(uint orderId) public isRestaurant {
+        orders[orderId].details.status = STATUS.Finalized;
+    }
+
+    //supplier places details TODO
+    function placeOrderDetails(uint orderId) public isSupplier(orderId) isFinalized(orderId) {
+
+    }
+
+    //TODO
+    function updateIngredients() isRestaurant public {
+
+    }
+
+    //TODO 
+    function reportIssue(uint orderId) public isRestaurant hasArrived(orderId) {
+
+    }
+
+    //restaurant changes shipped order status to complete  
+    function orderCompleted(uint orderId) public hasArrived(orderId) isRestaurant {
+        orders[orderId].details.status = STATUS.Completed;
+    }
+    
 }
