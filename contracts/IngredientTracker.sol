@@ -14,6 +14,50 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.2 <0.9.0;
 
+contract SupplierContractHub {
+ 	struct Stock{
+        string ingredient;
+        int qty;
+        int price;
+    }
+
+    struct Discount{
+        int percentage;
+        int minimumQty;
+    }
+	
+	struct Supplier{
+        string name;
+		Stock[] ingredients;
+        int contractDuration;
+        int terminationPenalty;
+        Discount[] discounts;
+        bool active;
+    }
+
+    mapping(address => Supplier) public suppliers;
+
+	function addSupplier(
+        address _supplierAddress,
+        string memory _name,
+        int _contractDuration, 
+        int _terminationPenalty
+        ) public payable {
+        //add supplier to mapping
+        Supplier storage newSupplier = suppliers[msg.sender];
+        newSupplier.active = true;
+    }
+
+    function viewSuppliers() public view returns(Supplier[] memory) {
+
+    }
+
+    function selectSupplier() public{
+	    //create child contract
+    }
+}
+
+
 contract IngredientTracker {
     address restaurant;
     address supplier;
