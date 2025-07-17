@@ -18,7 +18,7 @@ contract IngredientTracker {
     address restaurant;
     address supplier;
 
-    enum STATUS {InStorage, Finalized, Shipped, Arrived, Completed}
+    enum STATUS {InStorage, Finalized, Shipped, Arrived, Investigation, Completed}
 
     //Ingredient and its respective quantity
     struct Stock{
@@ -81,14 +81,18 @@ contract IngredientTracker {
         _;
     }
 
-    //restaurant initiates empty order with supplier
-    function createOrder(address _supplier) public isRestaurant {
-        orderCount++;
-        Order storage newOrder = orders[orderCount];
-        newOrder.id = orderCount;
-        newOrder.supplier = _supplier;
-        newOrder.details.status = STATUS.InStorage; 
+    modifier isUnderInvestigation(uint orderId) {
+        require(orders[orderId].details.status == STATUS.Investigation, "You have not reported an issue with this order!");
+        _;
     }
+
+    modifier notUnderInvestigation(uint orderId) {
+        require(orders[orderId].details.status != STATUS.Investigation, "An issue has been reported with this order!");
+        _;
+    }
+
+
+    /* these functions change the status  of the order */
 
     //supplier changes order status to shipped
     function shipOrder(uint orderId) public isSupplier(orderId) {
@@ -99,7 +103,30 @@ contract IngredientTracker {
     function orderArrived(uint orderId) public isShipped(orderId) isRestaurant {
         orders[orderId].details.status = STATUS.Arrived;
     }
-    
+
+    //restaurant finalizes order, so no more updating
+    function finalizeOrder(uint orderId) public isRestaurant {
+        orders[orderId].details.status = STATUS.Finalized;
+    }
+
+    //restaurant changes shipped order status to complete  
+    function orderCompleted(uint orderId) public hasArrived(orderId) isRestaurant notUnderInvestigation(orderId) {
+        orders[orderId].details.status = STATUS.Completed;
+    }
+
+
+    /* IMPORTANT FUNCTIONS*/
+
+
+    //restaurant initiates empty order with supplier
+    function createOrder(address _supplier) public isRestaurant {
+        orderCount++;
+        Order storage newOrder = orders[orderCount];
+        newOrder.id = orderCount;
+        newOrder.supplier = _supplier;
+        newOrder.details.status = STATUS.InStorage; 
+    }
+
     //edited uriels og function 
     function addIngredient(uint orderId, string memory _ingredient, uint _qty) isRestaurant public{
         orders[orderId].ingredients.push(Stock({ingredient: _ingredient, qty : _qty}));
@@ -110,14 +137,11 @@ contract IngredientTracker {
         return orders[orderId].ingredients;
     }
 
-    //restaurant finalizes order, so no more updating
-    function finalizeOrder(uint orderId) public isRestaurant {
-        orders[orderId].details.status = STATUS.Finalized;
-    }
-
     //supplier places details TODO
     function placeOrderDetails(uint orderId) public isSupplier(orderId) isFinalized(orderId) {
-
+        //place date
+        //discount
+        //final price etc
     }
 
     //TODO
@@ -127,12 +151,19 @@ contract IngredientTracker {
 
     //TODO 
     function reportIssue(uint orderId) public isRestaurant hasArrived(orderId) {
-
+        //smthg idk 
+        orders[orderId].details.status = STATUS.Investigation;
     }
 
-    //restaurant changes shipped order status to complete  
-    function orderCompleted(uint orderId) public hasArrived(orderId) isRestaurant {
+    //TODO 
+    function resolveIssue(uint orderId) public isUnderInvestigation(orderId) isSupplier(orderId) {
+        //refund magic blah blah 
         orders[orderId].details.status = STATUS.Completed;
+    }
+
+    //restaurant pays order 
+    function payOrder(uint orderId) external payable isRestaurant isFinalized(orderId) {
+        //check if pay is equal or greater to the final price 
     }
     
 }
