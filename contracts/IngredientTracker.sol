@@ -144,7 +144,7 @@ contract IngredientTracker {
     }
     
     //restaurant changes shipped order status to arrived  
-    function orderArrived(uint orderId) public isShipped(orderId) isSupplier(orderId) {
+    function orderArrived(uint orderId) public isShipped(orderId) isRestaurant {
         orders[orderId].details.status = STATUS.Arrived;
     }
 
@@ -157,15 +157,6 @@ contract IngredientTracker {
     function orderCompleted(uint orderId) public hasArrived(orderId) isRestaurant notUnderInvestigation(orderId) {
         orders[orderId].details.status = STATUS.Completed;
     }
-
-    function viewOrder(uint orderId) public view returns (Order memory){
-        return orders[orderId];
-    }
-
-    function checkStatus(uint orderId) public view returns (STATUS){
-        return orders[orderId].details.status;
-    }
-
 
 
     /* IMPORTANT FUNCTIONS*/
