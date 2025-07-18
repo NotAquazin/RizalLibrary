@@ -156,7 +156,7 @@ contract IngredientTracker {
     address private parent;
 
     enum DeliveryStatus {InStorage, Finalized, Shipped, Arrived, Completed}
-    enum IssueStatus { NoIssue, UnderInvestigation, FoundIssue, Verified, Resolved }
+    enum IssueStatus { NoIssue, UnderInvestigation, FoundIssue, Verified, Rejected, Resolved }
     //Ingredient and its respective quantity
     struct Stock{
         string ingredient;
@@ -176,6 +176,7 @@ contract IngredientTracker {
         DeliveryStatus deliveryStatus;
         IssueStatus issueStatus;
         bool terminated;
+        string rejectionReason;
     }
 
     mapping(uint => Order) public orders;
@@ -281,6 +282,9 @@ contract IngredientTracker {
         return orders[orderId].deliveryStatus;
     }    
 
+    function orderNoIssue(uint orderId) public hasArrived(orderId) isRestaurant {
+        orders[orderId].issueStatus = IssueStatus.NoIssue;
+    }
 
     /* IMPORTANT FUNCTIONS*/
 
@@ -363,8 +367,27 @@ contract IngredientTracker {
     // TO DO - NICO
     // calculate costs and pay to contract and change status to ORDERED
     // calculate probably from based on orders.finalprice???? not sure about this
-    function checkoutOrder() public {
+    // NOTE NO REDUCESTOCK YET, if implemented put here
+    function checkoutOrder(uint orderId) payable public isNotExpired(orderId) isNotTerminated(orderId) {
+        Order storage currentOrder = orders[orderId];
+        require(currentOrder.deliveryStatus == DeliveryStatus.InStorage, "Order already checked out or finalized.");
 
+        uint totalCost = 0;
+
+        for (uint i = 0; i < currentOrder.ingredients.length; i++) {
+            string memory ingredientName = currentOrder.ingredients[i].ingredient;
+            uint qtyOrdered = currentOrder.ingredients[i].qty;
+
+            // calls parent for the price of ingredient
+            uint pricePerUnit = SupplierContractHub(parent).getPrice(supplier, ingredientName);
+            totalCost += pricePerUnit * qtyOrdered;
+        }
+
+        // sets the finalprice before all the verification on the side of supplier
+        currentOrder.finalPrice = totalCost;
+
+        // checks if sent money is enough
+        require(msg.value >= totalCost, "Not enough money sent for the order!");
     }
 
 
@@ -396,10 +419,13 @@ contract IngredientTracker {
 
 
     //suppllier verifies the issue
-    function verifyIssue(uint orderId) public isSupplier hasFoundIssue(orderId) { 
-        orders[orderId].issueStatus = IssueStatus.Verified;
-
-        //TODO: add a case where supplier can reject it and outpput a string for reason 
+    function verifyIssue(uint orderId, bool valid, string memory reason) public isSupplier hasFoundIssue(orderId) { 
+        if (valid) {
+            orders[orderId].issueStatus = IssueStatus.Verified;
+        } else {
+            orders[orderId].issueStatus = IssueStatus.Rejected;
+            orders[orderId].rejectionReason = reason;
+        }
     }
 
     //finds new final price. resolves the issue 

@@ -69,10 +69,16 @@
 				"type": "function"
 			},
 			{
-				"inputs": [],
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					}
+				],
 				"name": "checkoutOrder",
 				"outputs": [],
-				"stateMutability": "nonpayable",
+				"stateMutability": "payable",
 				"type": "function"
 			},
 			{
@@ -205,6 +211,19 @@
 				"inputs": [
 					{
 						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					}
+				],
+				"name": "orderNoIssue",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
 						"name": "",
 						"type": "uint256"
 					}
@@ -250,6 +269,11 @@
 						"internalType": "bool",
 						"name": "terminated",
 						"type": "bool"
+					},
+					{
+						"internalType": "string",
+						"name": "rejectionReason",
+						"type": "string"
 					}
 				],
 				"stateMutability": "view",
@@ -343,6 +367,16 @@
 						"internalType": "uint256",
 						"name": "orderId",
 						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "valid",
+						"type": "bool"
+					},
+					{
+						"internalType": "string",
+						"name": "reason",
+						"type": "string"
 					}
 				],
 				"name": "verifyIssue",
@@ -435,6 +469,11 @@
 								"internalType": "bool",
 								"name": "terminated",
 								"type": "bool"
+							},
+							{
+								"internalType": "string",
+								"name": "rejectionReason",
+								"type": "string"
 							}
 						],
 						"internalType": "struct IngredientTracker.Order",
@@ -487,11 +526,11 @@
 	},
 	"sources": {
 		"contracts/IngredientTracker.sol": {
-			"keccak256": "0x3a53a90c66e8f718069164f0492dbe9303309eb410275093d5f01151751f6a54",
+			"keccak256": "0x62f61ebb6cc2b296ff4dc2a059c64c5ae3e907c7e6f468060affc92899b50aa2",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://9677594f47b9c29ce17146a3b392699863eae969e2686afafc01db09b07e0aa0",
-				"dweb:/ipfs/QmNQzy37tzJrT2oWw3fbbPkJSeoohddf1jF6o2dt2e5HvG"
+				"bzz-raw://b990bab7ee103ee9206521ba0194430d60e3f4be8066d7a71730b44af6a42465",
+				"dweb:/ipfs/Qme9LirGMiPa1yziTSHGkUEGaGBZBiLuxRJ5LB6YuHNqtt"
 			]
 		}
 	},
