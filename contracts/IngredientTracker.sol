@@ -288,7 +288,7 @@ contract IngredientTracker {
 
     /* these functions change the status  of the order */
 
-    function shipOrder(uint orderId) public isSupplier {
+    function shipOrder(uint orderId) public isSupplier isFinalized(orderId) {
         orders[orderId].deliveryStatus = DeliveryStatus.Shipped;
     }
     
@@ -415,20 +415,24 @@ contract IngredientTracker {
             uint qtyOrdered = currentOrder.ingredients[i].qty;
             SupplierContractHub(parent).reduceStock(ingredientName, int(qtyOrdered));
         }
+
+        currentOrder.deliveryStatus = DeliveryStatus.Finalized;
     }
 
-    // restaurant gives list of ingredient and their quantities that r broken
-    function reportIssue(uint orderId, string[] memory ingredients, uint[] memory quantities) public isRestaurant hasArrived(orderId) isUnderInvestigation(orderId) {
-        require(ingredients.length == quantities.length, "Length mismatch!");
+    //restaurant adds to damagedItems a damaged ingredient and quantity
+    function reportIssue(uint orderId, string memory _ingredient, uint _qty) isRestaurant isUnderInvestigation(orderId) public {
+        orders[orderId].damagedItems.push(Stock({ingredient: _ingredient, qty : _qty}));
+    }
+
+    //submits it to supplier
+    function submitIssue(uint orderId) public {
         if(orders[orderId].issueStatus == IssueStatus.FoundIssue){
             revert("You can only report issue once!");
         }
-
-        orders[orderId].issueStatus = IssueStatus.FoundIssue;
-
-        for (uint i = 0; i < ingredients.length; i++) {
-            orders[orderId].damagedItems.push(Stock({ingredient: ingredients[i], qty: quantities[i]}));
+        if (orders[orderId].damagedItems.length <= 0) {
+            revert("You have not reported any issue with the ingredients!");
         }
+        orders[orderId].issueStatus = IssueStatus.FoundIssue;
     }
 
     //suppllier verifies the issue
@@ -455,7 +459,34 @@ contract IngredientTracker {
         orders[orderId].refundPrice = newDamagedPrice;
         orders[orderId].finalPrice -= orders[orderId].refundPrice;
         orders[orderId].issueStatus = IssueStatus.Resolved;
-
     }
     
+    function terminateContract() public {
+
+    }
+
+    function deposit() public {
+
+    }
+
+    function renewContract() public {
+        //change date to new one in parameter
+    }
+
+    function cancelOrder(uint orderId) public isRestaurant {
+        require(orderId > 0 && orderId <= orderCount, "Invalid order ID");
+        require(orders[orderId].deliveryStatus == DeliveryStatus.InStorage, "Order has already been processed.");
+
+        if (orderId != orderCount) {
+            orders[orderId] = orders[orderCount];
+            orders[orderId].id = orderId; 
+        }
+
+        delete orders[orderCount];
+        orderCount--;
+    }
+
+
+    //Update code: Mady 3:50AM 7/19/2025. 492 lines of code
+
 }

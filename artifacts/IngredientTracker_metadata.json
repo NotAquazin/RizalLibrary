@@ -57,6 +57,19 @@
 						"type": "uint256"
 					}
 				],
+				"name": "cancelOrder",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					}
+				],
 				"name": "checkDeliveryStatus",
 				"outputs": [
 					{
@@ -97,6 +110,13 @@
 					}
 				],
 				"name": "createOrder",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "deposit",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -280,6 +300,13 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "renewContract",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "uint256",
@@ -287,14 +314,14 @@
 						"type": "uint256"
 					},
 					{
-						"internalType": "string[]",
-						"name": "ingredients",
-						"type": "string[]"
+						"internalType": "string",
+						"name": "_ingredient",
+						"type": "string"
 					},
 					{
-						"internalType": "uint256[]",
-						"name": "quantities",
-						"type": "uint256[]"
+						"internalType": "uint256",
+						"name": "_qty",
+						"type": "uint256"
 					}
 				],
 				"name": "reportIssue",
@@ -324,6 +351,26 @@
 					}
 				],
 				"name": "shipOrder",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					}
+				],
+				"name": "submitIssue",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "terminateContract",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -493,11 +540,11 @@
 	},
 	"sources": {
 		"contracts/IngredientTracker.sol": {
-			"keccak256": "0x172385b8db1680fedc607cf1759930338abe2cb6238194b1e2dc2870bd151d4b",
+			"keccak256": "0x880b0db94505d4a482248dab1195a109bbbf9086dccf3fe9117e38adf8daf571",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://2fa475bb272d37c646881048c843a807b1f86efa331acd404c8934482d5a368a",
-				"dweb:/ipfs/QmRQPpXyxR5SYKZ7oUjEirx7cv79s2GmGoyTqn6j1SfVBS"
+				"bzz-raw://9f6259c5206a4d9580c2a52f28e378183bb5fa9ff1255ed07e8393e5fb8771a5",
+				"dweb:/ipfs/QmYMVWQNxybHyjXeXgrtgzPtZKGSAgyLpY6qE2ZQ8usqHV"
 			]
 		}
 	},
