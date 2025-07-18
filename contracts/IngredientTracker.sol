@@ -66,7 +66,12 @@ contract SupplierContractHub {
         _;
     }
 
-	function addSupplier(string memory _name, int _contractDuration, int _terminationPenalty) public payable isNotSupplier{
+    modifier isSupplier(){
+        require(suppliers[msg.sender].active == true, "You are not a supplier!");
+        _;
+    }
+
+	function addSupplier(string memory _name, int _contractDuration, int _terminationPenalty) external isNotSupplier{
         Supplier storage newSupplier = suppliers[msg.sender];
         newSupplier.supplierAddress = msg.sender;
         newSupplier.name = _name;
@@ -76,7 +81,7 @@ contract SupplierContractHub {
         supplierAddresses.push(msg.sender);
     }
 
-    function addStock(string memory _ingredient, int _qty, uint _price) public {
+    function addStock(string memory _ingredient, int _qty, uint _price) public isSupplier{
         suppliers[msg.sender].stockList[_ingredient].ingredient = _ingredient;
         suppliers[msg.sender].stockList[_ingredient].qty += _qty;
         suppliers[msg.sender].stockList[_ingredient].price = _price;
@@ -96,13 +101,17 @@ contract SupplierContractHub {
         }
     }
         
-
-    function reduceStock(string memory _ingredient, int _reduceQty) public {
+    //function for supplier to reduce stock of supplier
+    function reduceStock(string memory _ingredient, int _reduceQty) external isSupplier{
         suppliers[msg.sender].stockList[_ingredient].qty -= _reduceQty;
     }
 
+    //function to reduce the quantity on the stock Sold
+    function stockSold(string memory _ingredient, int _reduceQty) private {
+        suppliers[msg.sender].stockList[_ingredient].qty -= _reduceQty;
+    }
 
-    function addDiscount() public {
+    function addDiscount() external isSupplier {
 
     }
 
@@ -126,7 +135,7 @@ contract SupplierContractHub {
         return summaries;
     }
 
-    function selectSupplier(address _supplierAddress, string memory _restaurantName) external {
+    function selectSupplier(address _supplierAddress, string memory _restaurantName) external isNotSupplier {
 	    //create child contract when restaurant choose which supplier to have a deal with
         //Child contract will be the IngredientTracker contract
         //Child contract will be initialized with the supplier address and the restaurant address
