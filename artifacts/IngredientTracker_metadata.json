@@ -6,7 +6,18 @@
 	"output": {
 		"abi": [
 			{
-				"inputs": [],
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_supplier",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_restaurant",
+						"type": "address"
+					}
+				],
 				"stateMutability": "nonpayable",
 				"type": "constructor"
 			},
@@ -36,12 +47,68 @@
 			{
 				"inputs": [
 					{
-						"internalType": "address",
-						"name": "_supplier",
-						"type": "address"
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					}
+				],
+				"name": "checkDeliveryStatus",
+				"outputs": [
+					{
+						"internalType": "enum IngredientTracker.DeliveryStatus",
+						"name": "",
+						"type": "uint8"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "checkoutOrder",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "copyLastOrder",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_deliverydate",
+						"type": "uint256"
 					}
 				],
 				"name": "createOrder",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "_ingredient",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_qty",
+						"type": "uint256"
+					}
+				],
+				"name": "editOrder",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -145,44 +212,55 @@
 						"type": "uint256"
 					},
 					{
-						"internalType": "address",
-						"name": "supplier",
-						"type": "address"
+						"internalType": "uint256",
+						"name": "date",
+						"type": "uint256"
 					},
 					{
-						"components": [
-							{
-								"internalType": "string",
-								"name": "date",
-								"type": "string"
-							},
-							{
-								"internalType": "uint256",
-								"name": "discount",
-								"type": "uint256"
-							},
-							{
-								"internalType": "uint256",
-								"name": "refundPrice",
-								"type": "uint256"
-							},
-							{
-								"internalType": "uint256",
-								"name": "finalPrice",
-								"type": "uint256"
-							},
-							{
-								"internalType": "enum IngredientTracker.STATUS",
-								"name": "status",
-								"type": "uint8"
-							}
-						],
-						"internalType": "struct IngredientTracker.Details",
-						"name": "details",
-						"type": "tuple"
+						"internalType": "uint256",
+						"name": "discount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "refundPrice",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "finalPrice",
+						"type": "uint256"
+					},
+					{
+						"internalType": "enum IngredientTracker.DeliveryStatus",
+						"name": "deliveryStatus",
+						"type": "uint8"
+					},
+					{
+						"internalType": "enum IngredientTracker.IssueStatus",
+						"name": "issueStatus",
+						"type": "uint8"
+					},
+					{
+						"internalType": "bool",
+						"name": "terminated",
+						"type": "bool"
 					}
 				],
 				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					}
+				],
+				"name": "payOrder",
+				"outputs": [],
+				"stateMutability": "payable",
 				"type": "function"
 			},
 			{
@@ -204,9 +282,32 @@
 						"internalType": "uint256",
 						"name": "orderId",
 						"type": "uint256"
+					},
+					{
+						"internalType": "string[]",
+						"name": "ingredients",
+						"type": "string[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "quantities",
+						"type": "uint256[]"
 					}
 				],
 				"name": "reportIssue",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					}
+				],
+				"name": "resolveIssue",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -229,6 +330,127 @@
 				"name": "updateIngredients",
 				"outputs": [],
 				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					}
+				],
+				"name": "verifyIssue",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					}
+				],
+				"name": "viewOrder",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "uint256",
+								"name": "id",
+								"type": "uint256"
+							},
+							{
+								"components": [
+									{
+										"internalType": "string",
+										"name": "ingredient",
+										"type": "string"
+									},
+									{
+										"internalType": "uint256",
+										"name": "qty",
+										"type": "uint256"
+									}
+								],
+								"internalType": "struct IngredientTracker.Stock[]",
+								"name": "ingredients",
+								"type": "tuple[]"
+							},
+							{
+								"components": [
+									{
+										"internalType": "string",
+										"name": "ingredient",
+										"type": "string"
+									},
+									{
+										"internalType": "uint256",
+										"name": "qty",
+										"type": "uint256"
+									}
+								],
+								"internalType": "struct IngredientTracker.Stock[]",
+								"name": "damagedItems",
+								"type": "tuple[]"
+							},
+							{
+								"internalType": "uint256",
+								"name": "date",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "discount",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "refundPrice",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "finalPrice",
+								"type": "uint256"
+							},
+							{
+								"internalType": "enum IngredientTracker.DeliveryStatus",
+								"name": "deliveryStatus",
+								"type": "uint8"
+							},
+							{
+								"internalType": "enum IngredientTracker.IssueStatus",
+								"name": "issueStatus",
+								"type": "uint8"
+							},
+							{
+								"internalType": "bool",
+								"name": "terminated",
+								"type": "bool"
+							}
+						],
+						"internalType": "struct IngredientTracker.Order",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "viewSupplierAddress",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "supplierAddress",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
 				"type": "function"
 			}
 		],
@@ -260,11 +482,11 @@
 	},
 	"sources": {
 		"contracts/IngredientTracker.sol": {
-			"keccak256": "0x4a30a626cc9ab37540658b7e281b3d74bfc8747810ac1b2eff46c4f220b7f0c2",
+			"keccak256": "0x0607a858d86179219d029f3445d1cd549bbb5fe0e4eda8229f83cddbd52b7dda",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://a91297529476e1b2de9440ead42e745a270291b7a74f5286cd48a457188c9424",
-				"dweb:/ipfs/QmZ8AmoG69KDPAPFy3x2yxc4nna9GX1NmZiY3GzU7LHmCs"
+				"bzz-raw://17ea82d1188514fba514815a9df49684549db05b420e5e62d92334365636ee3d",
+				"dweb:/ipfs/QmTMw6gGjnND2VBXG4HtkpR1XXpttuRgG6rDQTBRhuEztb"
 			]
 		}
 	},

@@ -1,0 +1,329 @@
+{
+	"compiler": {
+		"version": "0.8.30+commit.73712a01"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"name": "addDiscount",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_ingredient",
+						"type": "string"
+					},
+					{
+						"internalType": "int256",
+						"name": "_qty",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "_price",
+						"type": "int256"
+					}
+				],
+				"name": "addStock",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_name",
+						"type": "string"
+					},
+					{
+						"internalType": "int256",
+						"name": "_contractDuration",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "_terminationPenalty",
+						"type": "int256"
+					}
+				],
+				"name": "addSupplier",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "allContracts",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "contractAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "supplierName",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "supplierAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "restaurantName",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_ingredient",
+						"type": "string"
+					},
+					{
+						"internalType": "int256",
+						"name": "_reduceQty",
+						"type": "int256"
+					}
+				],
+				"name": "reduceStock",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_supplierAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "_restaurantName",
+						"type": "string"
+					}
+				],
+				"name": "selectSupplier",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "suppliers",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "supplierAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "int256",
+						"name": "contractDuration",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "terminationPenalty",
+						"type": "int256"
+					},
+					{
+						"internalType": "bool",
+						"name": "active",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "viewContracts",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "contractAddress",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "supplierName",
+								"type": "string"
+							},
+							{
+								"internalType": "address",
+								"name": "supplierAddress",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "restaurantName",
+								"type": "string"
+							}
+						],
+						"internalType": "struct SupplierContractHub.RestaurantContracts[]",
+						"name": "",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_supplierAddress",
+						"type": "address"
+					}
+				],
+				"name": "viewSupplierStock",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "ingredient",
+								"type": "string"
+							},
+							{
+								"internalType": "int256",
+								"name": "qty",
+								"type": "int256"
+							},
+							{
+								"internalType": "int256",
+								"name": "price",
+								"type": "int256"
+							}
+						],
+						"internalType": "struct SupplierContractHub.Stock[]",
+						"name": "",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "viewSuppliers",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "supplierAddress",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"internalType": "string[]",
+								"name": "ingredientsList",
+								"type": "string[]"
+							},
+							{
+								"internalType": "int256",
+								"name": "contractDuration",
+								"type": "int256"
+							},
+							{
+								"internalType": "int256",
+								"name": "terminationPenalty",
+								"type": "int256"
+							},
+							{
+								"internalType": "bool",
+								"name": "active",
+								"type": "bool"
+							}
+						],
+						"internalType": "struct SupplierContractHub.SupplierSummary[]",
+						"name": "",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/IngredientTracker.sol": "SupplierContractHub"
+		},
+		"evmVersion": "prague",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contracts/IngredientTracker.sol": {
+			"keccak256": "0x0607a858d86179219d029f3445d1cd549bbb5fe0e4eda8229f83cddbd52b7dda",
+			"license": "GPL-3.0",
+			"urls": [
+				"bzz-raw://17ea82d1188514fba514815a9df49684549db05b420e5e62d92334365636ee3d",
+				"dweb:/ipfs/QmTMw6gGjnND2VBXG4HtkpR1XXpttuRgG6rDQTBRhuEztb"
+			]
+		}
+	},
+	"version": 1
+}
