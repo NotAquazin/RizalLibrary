@@ -17,7 +17,6 @@ pragma solidity >=0.8.2 <0.9.0;
 contract SupplierContractHub {
     Supplier[] supplierList;
     address[] supplierAddresses;
-    //RestaurantContracts[] restaurantContracts;
 
     struct RestaurantContracts{
         address contractAddress;
@@ -29,27 +28,25 @@ contract SupplierContractHub {
  	struct Stock{
         string ingredient;
         int qty;
-        int price;
+        uint price;
     }
 
     struct Discount{
-        int percentage;
-        int minimumQty;
+        uint percentage;
+        uint minimumCost;
     }
 	
 	struct Supplier{
         address supplierAddress;
         string name;
         string[] ingredientsList;
-        Stock[] stockList;
-		mapping (string => Stock[]) ingredients; //i might remove this
+        mapping (string => Stock) stockList;
         int contractDuration;
         int terminationPenalty;
         Discount[] discounts;
         bool active;
     }
 
-    //Light weight returnable type of Supplier used for viewing all supliers
     struct SupplierSummary {
         address supplierAddress;
         string name;
@@ -59,7 +56,7 @@ contract SupplierContractHub {
         bool active;
     }        
 
-    mapping(address => Supplier) public suppliers;
+    mapping(address => Supplier) public suppliers; 
     mapping(address => RestaurantContracts[]) public allContracts;
 
     modifier isNotSupplier(){
@@ -67,7 +64,12 @@ contract SupplierContractHub {
         _;
     }
 
-	function addSupplier(string memory _name, int _contractDuration, int _terminationPenalty) public payable isNotSupplier{
+    modifier isSupplier(){
+        require(suppliers[msg.sender].active == true, "You are not a supplier!");
+        _;
+    }
+
+	function addSupplier(string memory _name, int _contractDuration, int _terminationPenalty) external isNotSupplier{
         Supplier storage newSupplier = suppliers[msg.sender];
         newSupplier.supplierAddress = msg.sender;
         newSupplier.name = _name;
@@ -77,30 +79,53 @@ contract SupplierContractHub {
         supplierAddresses.push(msg.sender);
     }
 
-    function addStock(string memory _ingredient, int _qty, int _price) public {
-        //Check if ingredient is already in added stock list of supplier, if so only add the _qty
-        //else push to the array
-
-        suppliers[msg.sender].stockList.push(Stock({ingredient: _ingredient, qty : _qty, price: _price}));
+    function addStock(string memory _ingredient, int _qty, uint _price) public isSupplier{
+        suppliers[msg.sender].stockList[_ingredient].ingredient = _ingredient;
+        suppliers[msg.sender].stockList[_ingredient].qty += _qty;
+        suppliers[msg.sender].stockList[_ingredient].price = _price;
+        
+        //check if _ingredient is not in suppliers[msg.sender].ingredientsList, if so then push _ingredient to ingredientsList
+        bool inList = false;
+        string memory a = _ingredient;
+        for (uint i = 0; i < suppliers[msg.sender].ingredientsList.length; i++){
+            string memory b = suppliers[msg.sender].ingredientsList[i];
+            if (keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b))){
+                inList = true;
+                break;
+            }
+        }
+        if (inList == false){
+            suppliers[msg.sender].ingredientsList.push(_ingredient);
+        }
+    }
+        
+    //function for supplier to reduce stock of supplier
+    function reduceStock(string memory _ingredient, int _reduceQty) external isSupplier{
+        require(_reduceQty > 0, "You must reduce a positive amount of quantity!");
+        require(_reduceQty <= suppliers[msg.sender].stockList[_ingredient].qty, "You reduce more than the current quantity!");
+        suppliers[msg.sender].stockList[_ingredient].qty -= _reduceQty;
     }
 
-    function reduceStock(string memory _ingredient, int _reduceQty) public {
-        //Check if ingredient is in stock list of supplier, if so reduce the _reduceQty
-        //else throw error
-        //if _reduceQty is greater than qty throw error
-        //else reduce the qty
-        //if qty is 0 remove from stock list
+    //function to reduce the quantity on the stock Sold
+    function stockSold(string memory _ingredient, int _reduceQty) private {
+        suppliers[msg.sender].stockList[_ingredient].qty -= _reduceQty;
     }
 
+    function addDiscount(uint _discount, uint _minimumCost) external isSupplier {
+        suppliers[msg.sender].discounts.push(Discount({percentage: _discount, minimumCost: _minimumCost}));
+    }
 
-    function addDiscount() public {
+    function clearDiscounts() external isSupplier {
+        delete suppliers[msg.sender].discounts;
+    }
 
+    function viewDiscount(address _supplierAddress) public view returns (Discount[] memory){
+        return suppliers[_supplierAddress].discounts;
     }
 
     function viewSuppliers() public view returns(SupplierSummary[] memory) {
         SupplierSummary[] memory summaries = new SupplierSummary[](supplierAddresses.length);
         
-        //Loop through the supplier list and add the summary of each supplier to the summaries array
         for (uint i = 0; i < supplierAddresses.length; i++) {
             address suppAddress = supplierAddresses[i];
             Supplier storage supplier = suppliers[suppAddress];
@@ -117,11 +142,7 @@ contract SupplierContractHub {
         return summaries;
     }
 
-    function selectSupplier(address _supplierAddress, string memory _restaurantName) external {
-	    //create child contract when restaurant choose which supplier to have a deal with
-        //Child contract will be the IngredientTracker contract
-        //Child contract will be initialized with the supplier address and the restaurant address
-
+    function selectSupplier(address _supplierAddress, string memory _restaurantName) external isNotSupplier {
         IngredientTracker ingredientTracker = new IngredientTracker(_supplierAddress, msg.sender, address(this));
         allContracts[msg.sender].push(RestaurantContracts({contractAddress: address(ingredientTracker), supplierName: suppliers[_supplierAddress].name, supplierAddress: _supplierAddress, restaurantName: _restaurantName}));
         //as of now the viewing of contracts is only for restaurant, add functionality for supplier to view theirs as well
@@ -131,21 +152,27 @@ contract SupplierContractHub {
         return allContracts[msg.sender];
     }
 
-    function viewSupplierStock(address _supplierAddress) public view returns (Stock[] memory) {        
-        return suppliers[_supplierAddress].stockList;
+    function viewSupplierStock(address _supplierAddress) public view returns (Stock[] memory) {
+        uint length = suppliers[_supplierAddress].ingredientsList.length;
+        Stock[] memory stockSummary = new Stock[](length);
+        for (uint i = 0; i < length; i++){
+            string memory ingredient = suppliers[_supplierAddress].ingredientsList[i];
+
+            stockSummary[i] = Stock({
+                ingredient: suppliers[_supplierAddress].stockList[ingredient].ingredient,
+                qty: suppliers[_supplierAddress].stockList[ingredient].qty,
+                price: suppliers[_supplierAddress].stockList[ingredient].price
+            });
+        }
+        return stockSummary;
     }
 
+    function getPrice(address _supplier, string memory _ingredient) public view returns (uint) {
+        return suppliers[_supplier].stockList[_ingredient].price;
+    }
 
-    // i get prices given supplier. go thru their stockList to find ingredient then its price 
-    function getPrice(address supplier, string memory ingredient) public view returns (uint) {
-        Stock[] memory stockList = suppliers[supplier].stockList;
-        for (uint i = 0; i < stockList.length; i++) {
-            // u cannot compare strings in solidity lmao with just a == I HATE IT SO MUCH
-            if (keccak256(bytes(stockList[i].ingredient)) == keccak256(bytes(ingredient))) {
-                return uint(stockList[i].price);
-            }
-        }
-        revert("Ingredient not found!");
+    function getIngredientQty(address _supplier, string memory _ingredient) public view returns (int) {
+        return suppliers[_supplier].stockList[_ingredient].qty;
     }
 }
 
@@ -154,17 +181,21 @@ contract IngredientTracker {
     address restaurant;
     address supplier;
     address private parent;
+    Discount[] discounts;
+    
+    struct Discount{
+        uint percentage;
+        uint minimumCost;
+    }    
 
     enum DeliveryStatus {InStorage, Finalized, Shipped, Arrived, Completed}
     enum IssueStatus { NoIssue, UnderInvestigation, FoundIssue, Verified, Rejected, Resolved }
-    //Ingredient and its respective quantity
+
     struct Stock{
         string ingredient;
         uint qty; 
     }
 
-    // added terminated bool for isNotTerminated modifier
-    // NOTE: made date an uint
     struct Order {
         uint id;
         Stock[] ingredients;
@@ -182,34 +213,29 @@ contract IngredientTracker {
     mapping(uint => Order) public orders;
     uint public orderCount;
 
-    //restaurant initializes the contract
     constructor(address _supplier, address _restaurant, address _parent){
         restaurant = _restaurant;
         supplier = _supplier;
         parent = _parent;
+        fetchDiscounts();
         //Child contract will be initialized with the supplier's stock list,discounts, contract duration, termination penalty, active status, name, stock
     }
 
-
-    //check if caller is restaurant
     modifier isRestaurant() {
         require(msg.sender == restaurant, "You are not the restaurant!");
         _;
     }
 
-    //check if caller is supplier
     modifier isSupplier() {
         require(msg.sender == supplier, "You are not the authorized supplier!");
         _;
     }
 
-    //check if order is shipped
     modifier isShipped(uint orderId) {
         require(orders[orderId].deliveryStatus == DeliveryStatus.Shipped, "Order has not been shipped!");
         _;
     }
     
-    //check if order has arrived
     modifier hasArrived(uint orderId) {
         require(orders[orderId].deliveryStatus == DeliveryStatus.Arrived, "Order has not arrived!");
         _;
@@ -250,26 +276,31 @@ contract IngredientTracker {
         return supplier;
     }
 
+    function fetchDiscounts() private {
+        SupplierContractHub.Discount[] memory supplierDiscounts = SupplierContractHub(parent).viewDiscount(supplier);
+        delete discounts;
+
+        for (uint i = 0; i < supplierDiscounts.length; i++) {
+            discounts.push(Discount({ percentage: supplierDiscounts[i].percentage, minimumCost: supplierDiscounts[i].minimumCost }));
+        }
+    }
+
 
     /* these functions change the status  of the order */
 
-    //supplier changes order status to shipped
     function shipOrder(uint orderId) public isSupplier {
         orders[orderId].deliveryStatus = DeliveryStatus.Shipped;
     }
     
-    //supplier changes shipped order status to arrived  
     function orderArrived(uint orderId) public isShipped(orderId) isSupplier {
         orders[orderId].deliveryStatus = DeliveryStatus.Arrived;
         orders[orderId].issueStatus = IssueStatus.UnderInvestigation;
     }
 
-    //restaurant finalizes order, so no more updating
     function finalizeOrder(uint orderId) public isRestaurant {
         orders[orderId].deliveryStatus = DeliveryStatus.Finalized;
     }
 
-    //restaurant changes shipped order status to complete  
     function orderCompleted(uint orderId) public hasArrived(orderId) isRestaurant hasNotFoundIssue(orderId) {
         orders[orderId].deliveryStatus = DeliveryStatus.Completed;
     }
@@ -288,10 +319,6 @@ contract IngredientTracker {
 
     /* IMPORTANT FUNCTIONS*/
 
-
-    //restaurant initiates empty order with supplier
-    // TODO NICO - Add more under order details
-    // removed isNotExpired and isNotTerminated modifier since it is making a new order, nothing to check yet
     function createOrder(uint _deliverydate) public isRestaurant  {
         orderCount++;
         Order storage newOrder = orders[orderCount];
@@ -301,24 +328,17 @@ contract IngredientTracker {
         newOrder.terminated = false;
     }
 
-    //edited uriels og function 
-    // Stock is an array, filled with dictionaries or a dictionary, just making sure ill research this
-    // there should be functionality to update the stock count of the supplier, i think this is part of this
     function addIngredient(uint orderId, string memory _ingredient, uint _qty) isRestaurant public {
         orders[orderId].ingredients.push(Stock({ingredient: _ingredient, qty : _qty}));
     }
 
-    //did same thing with this
     function getIngredientsList(uint orderId) public view returns (Stock[] memory){
         return orders[orderId].ingredients;
     }
 
-    // can just -1 index the order array to return the order, make it as new one
-    // increment orderCount since new order will be instantiated
     function copyLastOrder() public {
         require(orderCount > 0, "No previous order to copy!");
-        
-        // instantiate new order
+  
         orderCount++;
         Order storage newOrder = orders[orderCount];
         
@@ -339,17 +359,10 @@ contract IngredientTracker {
         }
     }
 
-    //check if order has been checked out already, so this function will work on non checked out orders only
-    // parameters are orderid, ingredients, quantity
-    // will search in order array from the orderid, then will look thru the dictionary if there is ingredient
-    // make sure to have a catch function if ingredient is not there, or supply is not enough
     function editOrder(uint orderId, string memory _ingredient, uint _qty) isRestaurant isNotExpired(orderId) isNotTerminated(orderId) public {
         require(orders[orderId].deliveryStatus == DeliveryStatus.InStorage, "Order already finalized!");
-
         bool isIngredientPresent = false;
 
-        // u cannot compare strings in solidity lmao
-        // https://ethereum.stackexchange.com/questions/30912/how-to-compare-strings-in-solidity
         for (uint i = 0; i < orders[orderId].ingredients.length; i++) {
             if (
             keccak256(abi.encodePacked(orders[orderId].ingredients[i].ingredient)) ==
@@ -364,10 +377,6 @@ contract IngredientTracker {
         require(isIngredientPresent == true, "Ingredient not found in the order!");
     }
 
-    // TO DO - NICO
-    // calculate costs and pay to contract and change status to ORDERED
-    // calculate probably from based on orders.finalprice???? not sure about this
-    // NOTE NO REDUCESTOCK YET, if implemented put here
     function checkoutOrder(uint orderId) payable public isNotExpired(orderId) isNotTerminated(orderId) {
         Order storage currentOrder = orders[orderId];
         require(currentOrder.deliveryStatus == DeliveryStatus.InStorage, "Order already checked out or finalized.");
@@ -383,24 +392,29 @@ contract IngredientTracker {
             totalCost += pricePerUnit * qtyOrdered;
         }
 
+        //recalculate with discount
+        uint highestDiscount = 0;
+        for (uint i = 0; i < discounts.length; i++) {
+            if (totalCost >= discounts[i].minimumCost) {
+                if (discounts[i].percentage > highestDiscount){
+                    highestDiscount = discounts[i].percentage;
+                }
+            }
+        }
+        totalCost = totalCost * ((100 - highestDiscount)/ 100);
+        
         // sets the finalprice before all the verification on the side of supplier
-        currentOrder.finalPrice = totalCost;
+        currentOrder.finalPrice = totalCost;        
 
         // checks if sent money is enough
         require(msg.value >= totalCost, "Not enough money sent for the order!");
-    }
 
-
-    //supplier places details TODO
-    function placeOrderDetails(uint orderId) public isSupplier isFinalized(orderId) {
-        //place date
-        //discount
-        //final price etc
-    }
-
-    //TODO
-    function updateIngredients() isRestaurant public {
-
+        //reduce stock 
+        for (uint i = 0; i < currentOrder.ingredients.length; i++) {
+            string memory ingredientName = currentOrder.ingredients[i].ingredient;
+            uint qtyOrdered = currentOrder.ingredients[i].qty;
+            SupplierContractHub(parent).reduceStock(ingredientName, int(qtyOrdered));
+        }
     }
 
     // restaurant gives list of ingredient and their quantities that r broken
@@ -416,7 +430,6 @@ contract IngredientTracker {
             orders[orderId].damagedItems.push(Stock({ingredient: ingredients[i], qty: quantities[i]}));
         }
     }
-
 
     //suppllier verifies the issue
     function verifyIssue(uint orderId, bool valid, string memory reason) public isSupplier hasFoundIssue(orderId) { 
