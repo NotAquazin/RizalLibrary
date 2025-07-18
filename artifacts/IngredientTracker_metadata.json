@@ -513,11 +513,11 @@
 	},
 	"sources": {
 		"contracts/IngredientTracker.sol": {
-			"keccak256": "0x87613cb61a7c077f925b16435120afbea24fad249eb77f8a895de48db64c6641",
+			"keccak256": "0x0d3ddc79aad600400aaad32008d83025ac48ab5eca1167392549e57f126b3bf6",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://6b67fce805f4f2cadc066a4d6521f736a22a1a9622bb10d9170aaa4d671cfc81",
-				"dweb:/ipfs/QmfSBArmLWeMpokhpWqKg22MphseGXxELu4rRTZNHXfxgg"
+				"bzz-raw://691db06c6298f6e3f90f456b63b71dcb792058b1de04f6f84134b8133130a46c",
+				"dweb:/ipfs/QmdBwDTaYXBGmgqdmvUUnFQKMDBwLNYgpwvaPYUDWqEvFW"
 			]
 		}
 	},

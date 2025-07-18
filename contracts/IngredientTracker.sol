@@ -119,7 +119,7 @@ contract SupplierContractHub {
         delete suppliers[msg.sender].discounts;
     }
 
-    function viewDiscount(address _supplierAddress) public view isSupplier returns (Discount[] memory){
+    function viewDiscount(address _supplierAddress) public view returns (Discount[] memory){
         return suppliers[_supplierAddress].discounts;
     }
 
