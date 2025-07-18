@@ -122,7 +122,7 @@ contract SupplierContractHub {
         //Child contract will be the IngredientTracker contract
         //Child contract will be initialized with the supplier address and the restaurant address
 
-        IngredientTracker ingredientTracker = new IngredientTracker(_supplierAddress, msg.sender);
+        IngredientTracker ingredientTracker = new IngredientTracker(_supplierAddress, msg.sender, address(this));
         allContracts[msg.sender].push(RestaurantContracts({contractAddress: address(ingredientTracker), supplierName: suppliers[_supplierAddress].name, supplierAddress: _supplierAddress, restaurantName: _restaurantName}));
         //as of now the viewing of contracts is only for restaurant, add functionality for supplier to view theirs as well
     }
@@ -134,15 +134,29 @@ contract SupplierContractHub {
     function viewSupplierStock(address _supplierAddress) public view returns (Stock[] memory) {        
         return suppliers[_supplierAddress].stockList;
     }
+
+
+    // i get prices given supplier. go thru their stockList to find ingredient then its price 
+    function getPrice(address supplier, string memory ingredient) public view returns (uint) {
+        Stock[] memory stockList = suppliers[supplier].stockList;
+        for (uint i = 0; i < stockList.length; i++) {
+            // u cannot compare strings in solidity lmao with just a == I HATE IT SO MUCH
+            if (keccak256(bytes(stockList[i].ingredient)) == keccak256(bytes(ingredient))) {
+                return uint(stockList[i].price);
+            }
+        }
+        revert("Ingredient not found!");
+    }
 }
 
 
 contract IngredientTracker {
     address restaurant;
     address supplier;
+    address private parent;
 
     enum DeliveryStatus {InStorage, Finalized, Shipped, Arrived, Completed}
-    enum IssueStatus { NoIssue, UnderInvestigation, Verified, Resolved }
+    enum IssueStatus { NoIssue, UnderInvestigation, FoundIssue, Verified, Resolved }
     //Ingredient and its respective quantity
     struct Stock{
         string ingredient;
@@ -182,9 +196,10 @@ contract IngredientTracker {
     uint public orderCount;
 
     //restaurant initializes the contract
-    constructor(address _supplier, address _restaurant){
+    constructor(address _supplier, address _restaurant, address _parent){
         restaurant = _restaurant;
         supplier = _supplier;
+        parent = _parent;
         //Child contract will be initialized with the supplier's stock list,discounts, contract duration, termination penalty, active status, name, stock
     }
 
@@ -219,12 +234,17 @@ contract IngredientTracker {
     }
 
     modifier isUnderInvestigation(uint orderId) {
-        require(orders[orderId].issueStatus == IssueStatus.UnderInvestigation, "You have not reported an issue with this order!");
+        require(orders[orderId].issueStatus == IssueStatus.UnderInvestigation, "Order has not arrived so it is not under investigation!");
         _;
     }
 
-    modifier notUnderInvestigation(uint orderId) {
-        require(orders[orderId].issueStatus != IssueStatus.UnderInvestigation, "An issue has been reported with this order!");
+    modifier hasFoundIssue(uint orderId) {
+        require(orders[orderId].issueStatus == IssueStatus.FoundIssue, "You have not reported an issue with this order!");
+        _;
+    }
+
+    modifier hasNotFoundIssue(uint orderId) {
+        require(orders[orderId].issueStatus != IssueStatus.FoundIssue, "An issue has been reported with this order!");
         _;
     }
 
@@ -254,6 +274,7 @@ contract IngredientTracker {
     //supplier changes shipped order status to arrived  
     function orderArrived(uint orderId) public isShipped(orderId) isSupplier {
         orders[orderId].deliveryStatus = DeliveryStatus.Arrived;
+        orders[orderId].issueStatus = IssueStatus.UnderInvestigation;
     }
 
     //restaurant finalizes order, so no more updating
@@ -262,7 +283,7 @@ contract IngredientTracker {
     }
 
     //restaurant changes shipped order status to complete  
-    function orderCompleted(uint orderId) public hasArrived(orderId) isRestaurant notUnderInvestigation(orderId) {
+    function orderCompleted(uint orderId) public hasArrived(orderId) isRestaurant hasNotFoundIssue(orderId) {
         orders[orderId].deliveryStatus = DeliveryStatus.Completed;
     }
 
@@ -286,7 +307,6 @@ contract IngredientTracker {
         Order storage newOrder = orders[orderCount];
         newOrder.id = orderCount;
         newOrder.deliveryStatus = DeliveryStatus.InStorage; 
-        newOrder.issueStatus = IssueStatus.NoIssue;
         newOrder.date = block.timestamp + _deliverydate;
         newOrder.terminated = false;
     }
@@ -374,31 +394,39 @@ contract IngredientTracker {
 
     }
 
-    function reportIssue(uint orderId, string[] memory ingredients, uint[] memory quantities) public isRestaurant hasArrived(orderId) {
+    // restaurant gives list of ingredient and their quantities that r broken
+    function reportIssue(uint orderId, string[] memory ingredients, uint[] memory quantities) public isRestaurant hasArrived(orderId) isUnderInvestigation(orderId) {
         require(ingredients.length == quantities.length, "Length mismatch!");
-        if(orders[orderId].issueStatus == IssueStatus.UnderInvestigation){
-            revert("Issue has already been reported!");
+        if(orders[orderId].issueStatus == IssueStatus.FoundIssue){
+            revert("You can only report issue once!");
         }
-        orders[orderId].issueStatus = IssueStatus.UnderInvestigation;
+
+        orders[orderId].issueStatus = IssueStatus.FoundIssue;
 
         for (uint i = 0; i < ingredients.length; i++) {
-        orders[orderId].damagedItems.push(Stock({
-            ingredient: ingredients[i],
-            qty: quantities[i]
-        }));
-    }
+            orders[orderId].damagedItems.push(Stock({ingredient: ingredients[i], qty: quantities[i]}));
+        }
     }
 
 
     //suppllier verifies the issue
-    function verifyIssue(uint orderId) public isSupplier isUnderInvestigation(orderId) { 
+    function verifyIssue(uint orderId) public isSupplier hasFoundIssue(orderId) { 
         orders[orderId].issueStatus = IssueStatus.Verified;
+
+        //TODO: add a case where supplier can reject it and outpput a string for reason 
     }
 
-    //TODO 
+    //finds new final price. resolves the issue 
     function resolveIssue(uint orderId) public isSupplier {
         require(orders[orderId].issueStatus == IssueStatus.Verified, "Order issue has not been verified!");
-        //refund magic blah blah 
+
+        Stock[] memory items = orders[orderId].damagedItems;
+        uint newDamagedPrice = 0;
+        for (uint i = 0; i < items.length; i++) {
+            uint price = SupplierContractHub(parent).getPrice(supplier, items[i].ingredient);
+            newDamagedPrice += (items[i].qty * price) / 2;
+        }
+        orders[orderId].finalPrice -= orders[orderId].refundPrice;
         orders[orderId].issueStatus = IssueStatus.Resolved;
 
     }

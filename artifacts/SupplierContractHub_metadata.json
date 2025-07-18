@@ -100,6 +100,30 @@
 			{
 				"inputs": [
 					{
+						"internalType": "address",
+						"name": "supplier",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "ingredient",
+						"type": "string"
+					}
+				],
+				"name": "getPrice",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
 						"internalType": "string",
 						"name": "_ingredient",
 						"type": "string"
@@ -317,11 +341,11 @@
 	},
 	"sources": {
 		"contracts/IngredientTracker.sol": {
-			"keccak256": "0x0607a858d86179219d029f3445d1cd549bbb5fe0e4eda8229f83cddbd52b7dda",
+			"keccak256": "0xc2588197d060a47cde5193dd641cfe16ea06ad4bd5852a241505a7f973ecfc98",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://17ea82d1188514fba514815a9df49684549db05b420e5e62d92334365636ee3d",
-				"dweb:/ipfs/QmTMw6gGjnND2VBXG4HtkpR1XXpttuRgG6rDQTBRhuEztb"
+				"bzz-raw://5520bee98859a8a61b188fff80f85f05ba86d6d22803de97901dfaf6a224ad9b",
+				"dweb:/ipfs/QmRLRTGpiEn6L59RrHrmB5YHRuwkEDTDZNksaJ2Bx4fDk5"
 			]
 		}
 	},
