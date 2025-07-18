@@ -444,10 +444,5 @@ contract IngredientTracker {
         orders[orderId].issueStatus = IssueStatus.Resolved;
 
     }
-
-    //restaurant pays order 
-    function payOrder(uint orderId) external payable isRestaurant isFinalized(orderId) {
-        //check if pay is equal or greater to the final price 
-    }
     
 }
