@@ -16,6 +16,11 @@
 						"internalType": "address",
 						"name": "_restaurant",
 						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_parent",
+						"type": "address"
 					}
 				],
 				"stateMutability": "nonpayable",
@@ -52,10 +57,10 @@
 						"type": "uint256"
 					}
 				],
-				"name": "checkStatus",
+				"name": "checkDeliveryStatus",
 				"outputs": [
 					{
-						"internalType": "enum IngredientTracker.STATUS",
+						"internalType": "enum IngredientTracker.DeliveryStatus",
 						"name": "",
 						"type": "uint8"
 					}
@@ -66,12 +71,55 @@
 			{
 				"inputs": [
 					{
-						"internalType": "address",
-						"name": "_supplier",
-						"type": "address"
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					}
+				],
+				"name": "checkoutOrder",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "copyLastOrder",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_deliverydate",
+						"type": "uint256"
 					}
 				],
 				"name": "createOrder",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "_ingredient",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_qty",
+						"type": "uint256"
+					}
+				],
+				"name": "editOrder",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -163,6 +211,19 @@
 				"inputs": [
 					{
 						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					}
+				],
+				"name": "orderNoIssue",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
 						"name": "",
 						"type": "uint256"
 					}
@@ -175,57 +236,47 @@
 						"type": "uint256"
 					},
 					{
-						"internalType": "address",
-						"name": "supplier",
-						"type": "address"
+						"internalType": "uint256",
+						"name": "date",
+						"type": "uint256"
 					},
 					{
-						"components": [
-							{
-								"internalType": "string",
-								"name": "date",
-								"type": "string"
-							},
-							{
-								"internalType": "uint256",
-								"name": "discount",
-								"type": "uint256"
-							},
-							{
-								"internalType": "uint256",
-								"name": "refundPrice",
-								"type": "uint256"
-							},
-							{
-								"internalType": "uint256",
-								"name": "finalPrice",
-								"type": "uint256"
-							},
-							{
-								"internalType": "enum IngredientTracker.STATUS",
-								"name": "status",
-								"type": "uint8"
-							}
-						],
-						"internalType": "struct IngredientTracker.Details",
-						"name": "details",
-						"type": "tuple"
+						"internalType": "uint256",
+						"name": "discount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "refundPrice",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "finalPrice",
+						"type": "uint256"
+					},
+					{
+						"internalType": "enum IngredientTracker.DeliveryStatus",
+						"name": "deliveryStatus",
+						"type": "uint8"
+					},
+					{
+						"internalType": "enum IngredientTracker.IssueStatus",
+						"name": "issueStatus",
+						"type": "uint8"
+					},
+					{
+						"internalType": "bool",
+						"name": "terminated",
+						"type": "bool"
+					},
+					{
+						"internalType": "string",
+						"name": "rejectionReason",
+						"type": "string"
 					}
 				],
 				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "orderId",
-						"type": "uint256"
-					}
-				],
-				"name": "payOrder",
-				"outputs": [],
-				"stateMutability": "payable",
 				"type": "function"
 			},
 			{
@@ -247,6 +298,16 @@
 						"internalType": "uint256",
 						"name": "orderId",
 						"type": "uint256"
+					},
+					{
+						"internalType": "string[]",
+						"name": "ingredients",
+						"type": "string[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "quantities",
+						"type": "uint256[]"
 					}
 				],
 				"name": "reportIssue",
@@ -293,6 +354,29 @@
 						"internalType": "uint256",
 						"name": "orderId",
 						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "valid",
+						"type": "bool"
+					},
+					{
+						"internalType": "string",
+						"name": "reason",
+						"type": "string"
+					}
+				],
+				"name": "verifyIssue",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
 					}
 				],
 				"name": "viewOrder",
@@ -303,11 +387,6 @@
 								"internalType": "uint256",
 								"name": "id",
 								"type": "uint256"
-							},
-							{
-								"internalType": "address",
-								"name": "supplier",
-								"type": "address"
 							},
 							{
 								"components": [
@@ -330,33 +409,58 @@
 								"components": [
 									{
 										"internalType": "string",
-										"name": "date",
+										"name": "ingredient",
 										"type": "string"
 									},
 									{
 										"internalType": "uint256",
-										"name": "discount",
+										"name": "qty",
 										"type": "uint256"
-									},
-									{
-										"internalType": "uint256",
-										"name": "refundPrice",
-										"type": "uint256"
-									},
-									{
-										"internalType": "uint256",
-										"name": "finalPrice",
-										"type": "uint256"
-									},
-									{
-										"internalType": "enum IngredientTracker.STATUS",
-										"name": "status",
-										"type": "uint8"
 									}
 								],
-								"internalType": "struct IngredientTracker.Details",
-								"name": "details",
-								"type": "tuple"
+								"internalType": "struct IngredientTracker.Stock[]",
+								"name": "damagedItems",
+								"type": "tuple[]"
+							},
+							{
+								"internalType": "uint256",
+								"name": "date",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "discount",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "refundPrice",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "finalPrice",
+								"type": "uint256"
+							},
+							{
+								"internalType": "enum IngredientTracker.DeliveryStatus",
+								"name": "deliveryStatus",
+								"type": "uint8"
+							},
+							{
+								"internalType": "enum IngredientTracker.IssueStatus",
+								"name": "issueStatus",
+								"type": "uint8"
+							},
+							{
+								"internalType": "bool",
+								"name": "terminated",
+								"type": "bool"
+							},
+							{
+								"internalType": "string",
+								"name": "rejectionReason",
+								"type": "string"
 							}
 						],
 						"internalType": "struct IngredientTracker.Order",
@@ -402,18 +506,18 @@
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
-			"enabled": false,
-			"runs": 200
+			"enabled": true,
+			"runs": 20
 		},
 		"remappings": []
 	},
 	"sources": {
 		"contracts/IngredientTracker.sol": {
-			"keccak256": "0xbfd3b16c322617071dcc6c326c0f6753160ef41b00f9fcd6eadf7ae805b6e335",
+			"keccak256": "0xec40d8959b367a66bd970eb758aac68e837e5513f11aaa465a3bdbddf6d86ab9",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://350ad7ef28b291811490401899b5dd8cfddd0db27f1100bb6a4956c7d9c4fc06",
-				"dweb:/ipfs/QmPgcB8DD6bVojeTa6KnxeHBPhdibR6UfZxnQ4KP1ypcW3"
+				"bzz-raw://d673a7faa5a7004d2689b44c22d9599b49bd6db980fc6bd31f02b8287f08a357",
+				"dweb:/ipfs/QmdvQP8B1RBJ2TaaWRe6dNtThuc7rdoRyYiAeHT4SfhhKQ"
 			]
 		}
 	},

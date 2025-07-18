@@ -25,9 +25,9 @@
 						"type": "int256"
 					},
 					{
-						"internalType": "int256",
+						"internalType": "uint256",
 						"name": "_price",
-						"type": "int256"
+						"type": "uint256"
 					}
 				],
 				"name": "addStock",
@@ -92,6 +92,54 @@
 						"internalType": "string",
 						"name": "restaurantName",
 						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_supplier",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "_ingredient",
+						"type": "string"
+					}
+				],
+				"name": "getIngredientQty",
+				"outputs": [
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_supplier",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "_ingredient",
+						"type": "string"
+					}
+				],
+				"name": "getPrice",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
 					}
 				],
 				"stateMutability": "view",
@@ -230,9 +278,9 @@
 								"type": "int256"
 							},
 							{
-								"internalType": "int256",
+								"internalType": "uint256",
 								"name": "price",
-								"type": "int256"
+								"type": "uint256"
 							}
 						],
 						"internalType": "struct SupplierContractHub.Stock[]",
@@ -310,18 +358,18 @@
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
-			"enabled": false,
-			"runs": 200
+			"enabled": true,
+			"runs": 20
 		},
 		"remappings": []
 	},
 	"sources": {
 		"contracts/IngredientTracker.sol": {
-			"keccak256": "0xbfd3b16c322617071dcc6c326c0f6753160ef41b00f9fcd6eadf7ae805b6e335",
+			"keccak256": "0xec40d8959b367a66bd970eb758aac68e837e5513f11aaa465a3bdbddf6d86ab9",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://350ad7ef28b291811490401899b5dd8cfddd0db27f1100bb6a4956c7d9c4fc06",
-				"dweb:/ipfs/QmPgcB8DD6bVojeTa6KnxeHBPhdibR6UfZxnQ4KP1ypcW3"
+				"bzz-raw://d673a7faa5a7004d2689b44c22d9599b49bd6db980fc6bd31f02b8287f08a357",
+				"dweb:/ipfs/QmdvQP8B1RBJ2TaaWRe6dNtThuc7rdoRyYiAeHT4SfhhKQ"
 			]
 		}
 	},
