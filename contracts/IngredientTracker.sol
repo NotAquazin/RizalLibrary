@@ -431,9 +431,6 @@ contract IngredientTracker {
             totalCost += pricePerUnit * qtyOrdered;
         }
 
-        // sets the finalprice before all the verification on the side of supplier
-        currentOrder.finalPrice = totalCost;
-
         //recalculate with discount
         uint highestDiscount = 0;
         for (uint i = 0; i < discounts.length; i++) {
@@ -444,6 +441,10 @@ contract IngredientTracker {
             }
         }
         totalCost = totalCost * ((100 - highestDiscount)/ 100);
+        
+        // sets the finalprice before all the verification on the side of supplier
+        currentOrder.finalPrice = totalCost;        
+
         // checks if sent money is enough
         require(msg.value >= totalCost, "Not enough money sent for the order!");
     }
