@@ -163,26 +163,12 @@ contract IngredientTracker {
         uint qty; 
     }
 
-
-    // ALL THESE ARE TRANSFERRED TO ORDER STRUCT
-    // struct Details{
-    //     string date;
-    //     uint discount;
-    //     uint refundPrice; 
-    //     uint finalPrice;
-    //     STATUS status; 
-    // }
-
-
-    // i made this a struct because a restaurant can have multiple orders -mady
     // added terminated bool for isNotTerminated modifier
     // NOTE: made date an uint
     struct Order {
         uint id;
-        //address supplier;
         Stock[] ingredients;
         Stock[] damagedItems;
-        //Details details;
         uint date;
         uint discount;
         uint refundPrice; 
@@ -426,6 +412,8 @@ contract IngredientTracker {
             uint price = SupplierContractHub(parent).getPrice(supplier, items[i].ingredient);
             newDamagedPrice += (items[i].qty * price) / 2;
         }
+
+        orders[orderId].refundPrice = newDamagedPrice;
         orders[orderId].finalPrice -= orders[orderId].refundPrice;
         orders[orderId].issueStatus = IssueStatus.Resolved;
 
