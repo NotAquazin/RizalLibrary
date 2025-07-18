@@ -32,8 +32,8 @@ contract SupplierContractHub {
     }
 
     struct Discount{
-        int percentage;
-        int minimumQty;
+        uint percentage;
+        uint minimumCost;
     }
 	
 	struct Supplier{
@@ -58,7 +58,7 @@ contract SupplierContractHub {
         bool active;
     }        
 
-    mapping(address => Supplier) public suppliers;
+    mapping(address => Supplier) public suppliers; 
     mapping(address => RestaurantContracts[]) public allContracts;
 
     modifier isNotSupplier(){
@@ -111,8 +111,12 @@ contract SupplierContractHub {
         suppliers[msg.sender].stockList[_ingredient].qty -= _reduceQty;
     }
 
-    function addDiscount() external isSupplier {
+    function addDiscount(uint _discount, uint _minimumCost) external isSupplier {
+        suppliers[msg.sender].discounts.push(Discount({percentage: _discount, minimumCost: _minimumCost}));
+    }
 
+    function viewDiscount(address _supplierAddress) public view isSupplier returns (Discount[] memory){
+        return suppliers[_supplierAddress].discounts;
     }
 
     function viewSuppliers() public view returns(SupplierSummary[] memory) {
@@ -178,6 +182,12 @@ contract IngredientTracker {
     address restaurant;
     address supplier;
     address private parent;
+    Discount[] discounts;
+    
+    struct Discount{
+        uint percentage;
+        uint minimumCost;
+    }    
 
     enum DeliveryStatus {InStorage, Finalized, Shipped, Arrived, Completed}
     enum IssueStatus { NoIssue, UnderInvestigation, FoundIssue, Verified, Rejected, Resolved }
@@ -211,6 +221,7 @@ contract IngredientTracker {
         restaurant = _restaurant;
         supplier = _supplier;
         parent = _parent;
+        fetchDiscounts();
         //Child contract will be initialized with the supplier's stock list,discounts, contract duration, termination penalty, active status, name, stock
     }
 
@@ -272,6 +283,15 @@ contract IngredientTracker {
     //FOR TESTING PURPOSES ONLY
     function viewSupplierAddress() external view returns(address supplierAddress) {
         return supplier;
+    }
+
+    function fetchDiscounts() private {
+        SupplierContractHub.Discount[] memory supplierDiscounts = SupplierContractHub(parent).viewDiscount(supplier);
+        delete discounts;
+
+        for (uint i = 0; i < supplierDiscounts.length; i++) {
+            discounts.push(Discount({ percentage: supplierDiscounts[i].percentage, minimumCost: supplierDiscounts[i].minimumCost }));
+        }
     }
 
 
@@ -410,6 +430,16 @@ contract IngredientTracker {
         // sets the finalprice before all the verification on the side of supplier
         currentOrder.finalPrice = totalCost;
 
+        //recalculate with discount
+        uint highestDiscount = 0;
+        for (uint i = 0; i < discounts.length; i++) {
+            if (totalCost >= discounts[i].minimumCost) {
+                if (discounts[i].percentage > highestDiscount){
+                    highestDiscount = discounts[i].percentage;
+                }
+            }
+        }
+        totalCost = totalCost * ((100 - highestDiscount)/ 100);
         // checks if sent money is enough
         require(msg.value >= totalCost, "Not enough money sent for the order!");
     }
