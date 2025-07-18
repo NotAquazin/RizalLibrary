@@ -115,6 +115,10 @@ contract SupplierContractHub {
         suppliers[msg.sender].discounts.push(Discount({percentage: _discount, minimumCost: _minimumCost}));
     }
 
+    function clearDiscounts() external isSupplier {
+        delete suppliers[msg.sender].discounts;
+    }
+
     function viewDiscount(address _supplierAddress) public view isSupplier returns (Discount[] memory){
         return suppliers[_supplierAddress].discounts;
     }
