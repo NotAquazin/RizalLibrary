@@ -6,18 +6,7 @@
 	"output": {
 		"abi": [
 			{
-				"inputs": [
-					{
-						"internalType": "address",
-						"name": "_supplier",
-						"type": "address"
-					},
-					{
-						"internalType": "address",
-						"name": "_restaurant",
-						"type": "address"
-					}
-				],
+				"inputs": [],
 				"stateMutability": "nonpayable",
 				"type": "constructor"
 			},
@@ -42,25 +31,6 @@
 				"name": "addIngredient",
 				"outputs": [],
 				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "orderId",
-						"type": "uint256"
-					}
-				],
-				"name": "checkStatus",
-				"outputs": [
-					{
-						"internalType": "enum IngredientTracker.STATUS",
-						"name": "",
-						"type": "uint8"
-					}
-				],
-				"stateMutability": "view",
 				"type": "function"
 			},
 			{
@@ -223,19 +193,6 @@
 						"type": "uint256"
 					}
 				],
-				"name": "payOrder",
-				"outputs": [],
-				"stateMutability": "payable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "orderId",
-						"type": "uint256"
-					}
-				],
 				"name": "placeOrderDetails",
 				"outputs": [],
 				"stateMutability": "nonpayable",
@@ -262,19 +219,6 @@
 						"type": "uint256"
 					}
 				],
-				"name": "resolveIssue",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "orderId",
-						"type": "uint256"
-					}
-				],
 				"name": "shipOrder",
 				"outputs": [],
 				"stateMutability": "nonpayable",
@@ -285,99 +229,6 @@
 				"name": "updateIngredients",
 				"outputs": [],
 				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "orderId",
-						"type": "uint256"
-					}
-				],
-				"name": "viewOrder",
-				"outputs": [
-					{
-						"components": [
-							{
-								"internalType": "uint256",
-								"name": "id",
-								"type": "uint256"
-							},
-							{
-								"internalType": "address",
-								"name": "supplier",
-								"type": "address"
-							},
-							{
-								"components": [
-									{
-										"internalType": "string",
-										"name": "ingredient",
-										"type": "string"
-									},
-									{
-										"internalType": "uint256",
-										"name": "qty",
-										"type": "uint256"
-									}
-								],
-								"internalType": "struct IngredientTracker.Stock[]",
-								"name": "ingredients",
-								"type": "tuple[]"
-							},
-							{
-								"components": [
-									{
-										"internalType": "string",
-										"name": "date",
-										"type": "string"
-									},
-									{
-										"internalType": "uint256",
-										"name": "discount",
-										"type": "uint256"
-									},
-									{
-										"internalType": "uint256",
-										"name": "refundPrice",
-										"type": "uint256"
-									},
-									{
-										"internalType": "uint256",
-										"name": "finalPrice",
-										"type": "uint256"
-									},
-									{
-										"internalType": "enum IngredientTracker.STATUS",
-										"name": "status",
-										"type": "uint8"
-									}
-								],
-								"internalType": "struct IngredientTracker.Details",
-								"name": "details",
-								"type": "tuple"
-							}
-						],
-						"internalType": "struct IngredientTracker.Order",
-						"name": "",
-						"type": "tuple"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "viewSupplierAddress",
-				"outputs": [
-					{
-						"internalType": "address",
-						"name": "supplierAddress",
-						"type": "address"
-					}
-				],
-				"stateMutability": "view",
 				"type": "function"
 			}
 		],
@@ -409,11 +260,11 @@
 	},
 	"sources": {
 		"contracts/IngredientTracker.sol": {
-			"keccak256": "0xbfd3b16c322617071dcc6c326c0f6753160ef41b00f9fcd6eadf7ae805b6e335",
+			"keccak256": "0x4a30a626cc9ab37540658b7e281b3d74bfc8747810ac1b2eff46c4f220b7f0c2",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://350ad7ef28b291811490401899b5dd8cfddd0db27f1100bb6a4956c7d9c4fc06",
-				"dweb:/ipfs/QmPgcB8DD6bVojeTa6KnxeHBPhdibR6UfZxnQ4KP1ypcW3"
+				"bzz-raw://a91297529476e1b2de9440ead42e745a270291b7a74f5286cd48a457188c9424",
+				"dweb:/ipfs/QmZ8AmoG69KDPAPFy3x2yxc4nna9GX1NmZiY3GzU7LHmCs"
 			]
 		}
 	},
