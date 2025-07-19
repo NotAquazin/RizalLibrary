@@ -228,7 +228,7 @@ contract IngredientTracker {
         restaurant = _restaurant;
         supplier = _supplier;
         parent = _parent;
-        expiryDate = _expiryDate;
+        expiryDate = block.timestamp + _expiryDate;
         fetchDiscounts();
         terminated = false; 
         //Child contract will be initialized with the supplier's stock list,discounts, contract duration, termination penalty, active status, name, stock
@@ -310,10 +310,6 @@ contract IngredientTracker {
         orders[orderId].issueStatus = IssueStatus.UnderInvestigation;
     }
 
-    function finalizeOrder(uint orderId) public isRestaurant {
-        orders[orderId].deliveryStatus = DeliveryStatus.Finalized;
-    }
-
     function viewOrder(uint orderId) public view returns (Order memory){
         return orders[orderId];
     }
@@ -337,6 +333,7 @@ contract IngredientTracker {
     }
 
     function addIngredient(uint orderId, string memory _ingredient, uint _qty) isRestaurant public {
+        require(orders[orderId].deliveryStatus == DeliveryStatus.InStorage, "Your order has already been paid and processed.");
         orders[orderId].ingredients.push(Item({ingredient: _ingredient, qty : _qty}));
     }
 
@@ -344,7 +341,7 @@ contract IngredientTracker {
         return orders[orderId].ingredients;
     }
 
-    function copyLastOrder() public {
+    function copyLastOrder(uint date) public {
         require(orderCount > 0, "No previous order to copy!");
   
         orderCount++;
@@ -353,7 +350,7 @@ contract IngredientTracker {
         newOrder.id = orderCount;
         newOrder.deliveryStatus = DeliveryStatus.InStorage;
         newOrder.issueStatus = IssueStatus.NoIssue;
-        newOrder.date = orders[orderCount - 1].date;
+        newOrder.date = block.timestamp + date;
 
         // copying the ingredients
         for (uint i = 0; i < orders[orderCount - 1].ingredients.length; i++) {
@@ -387,9 +384,26 @@ contract IngredientTracker {
     function checkoutOrder(uint orderId) payable public isNotExpired() isNotTerminated() isRestaurant {
         Order storage currentOrder = orders[orderId];
         require(currentOrder.deliveryStatus == DeliveryStatus.InStorage, "Order already checked out or finalized.");
+        uint totalCost = computePrice(orderId);
+        
+        // sets the finalprice before all the verification on the side of supplier
+        currentOrder.finalPrice = totalCost;        
 
-        uint totalCost = 0;
+        // checks if sent money is enough
+        require(msg.value >= totalCost, "Not enough money sent for the order!");
 
+        //reduce stock 
+        for (uint i = 0; i < currentOrder.ingredients.length; i++) {
+            string memory ingredientName = currentOrder.ingredients[i].ingredient;
+            uint qtyOrdered = currentOrder.ingredients[i].qty;
+            SupplierContractHub(parent).stockSold(ingredientName, int(qtyOrdered));
+        }
+        currentOrder.deliveryStatus = DeliveryStatus.Finalized;
+    }
+
+    function computePrice(uint orderId) public view returns (uint price){
+        uint totalCost = 0;        
+        Order memory currentOrder = orders[orderId];
         for (uint i = 0; i < currentOrder.ingredients.length; i++) {
             string memory ingredientName = currentOrder.ingredients[i].ingredient;
             uint qtyOrdered = currentOrder.ingredients[i].qty;
@@ -409,21 +423,9 @@ contract IngredientTracker {
             }
         }
         totalCost = totalCost * ((100 - highestDiscount)/ 100);
-        
-        // sets the finalprice before all the verification on the side of supplier
-        currentOrder.finalPrice = totalCost;        
 
-        // checks if sent money is enough
-        require(msg.value >= totalCost, "Not enough money sent for the order!");
-
-        //reduce stock 
-        for (uint i = 0; i < currentOrder.ingredients.length; i++) {
-            string memory ingredientName = currentOrder.ingredients[i].ingredient;
-            uint qtyOrdered = currentOrder.ingredients[i].qty;
-            SupplierContractHub(parent).stockSold(ingredientName, int(qtyOrdered));
-        }
-
-        currentOrder.deliveryStatus = DeliveryStatus.Finalized;
+        currentOrder.finalPrice = totalCost;      
+        return totalCost;
     }
 
     receive() external payable {}
@@ -471,16 +473,16 @@ contract IngredientTracker {
     }
     
     function terminateContract() public {
+
+        uint penalty = SupplierContractHub(parent).suppliers[supplier].terminationPenalty;
         parent = address(0);
         supplier = address(0);
         restaurant = address(0);
         terminated = true;
     }
 
-    function settlePayment(uint orderId) public isRestaurant {
-        require(msg.sender == restaurant, "Only contract owner");
-        require(address(this).balance == orders[orderId].refundPrice + orders[orderId].finalPrice);
-
+    function settlePayment(uint orderId) public isRestaurant hasArrived(orderId) {
+        require(orders[orderId].issueStatus == IssueStatus.NoIssue || orders[orderId].issueStatus == IssueStatus.Resolved || orders[orderId].issueStatus == IssueStatus.Rejected, "Your order is still under quality checking.");
         payable(supplier).transfer(orders[orderId].finalPrice);
         payable(restaurant).transfer(orders[orderId].refundPrice);
 
@@ -504,8 +506,5 @@ contract IngredientTracker {
         delete orders[orderCount];
         orderCount--;
     }
-
-
-    //Update code: Kino 10:54AM 7/19/2025. 501 lines of code
 
 }
