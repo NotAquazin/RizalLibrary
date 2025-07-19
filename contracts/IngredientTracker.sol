@@ -626,7 +626,8 @@ contract IngredientTracker {
         orders[orderId].finalPrice -= orders[orderId].refundPrice;
         orders[orderId].issueStatus = IssueStatus.Resolved;
     }
-    
+
+    /// @notice address of parent, supplier, and restaurant set to 0 and boolean terminated set true
     function terminateContract() payable public {
         uint penalty = SupplierContractHub(parent).getSupplierPenalty(supplier);
         require(msg.value ==  penalty, "You have not paid the exact penalty fee!");
@@ -642,6 +643,8 @@ contract IngredientTracker {
         terminated = true;
     }
 
+    /// @notice distributes the payment to restaurant and supplier
+    /// @param orderId Specifies the ID of the order
     function settlePayment(uint orderId) public isRestaurant hasArrived(orderId) {
         require(orders[orderId].issueStatus == IssueStatus.NoIssue || orders[orderId].issueStatus == IssueStatus.Resolved || orders[orderId].issueStatus == IssueStatus.Rejected, "Your order is still under quality checking.");
         payable(supplier).transfer(orders[orderId].finalPrice);
@@ -651,6 +654,8 @@ contract IngredientTracker {
 
     }
 
+    /// @notice Changes expiry Date of the contract
+    /// @param newDate will be the new expiryDate
     function renewContract(uint newDate) public isRestaurant {
         expiryDate = newDate;
     }
