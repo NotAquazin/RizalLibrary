@@ -21,6 +21,11 @@
 						"internalType": "address",
 						"name": "_parent",
 						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_expiryDate",
+						"type": "uint256"
 					}
 				],
 				"stateMutability": "nonpayable",
@@ -95,7 +100,13 @@
 				"type": "function"
 			},
 			{
-				"inputs": [],
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "date",
+						"type": "uint256"
+					}
+				],
 				"name": "copyLastOrder",
 				"outputs": [],
 				"stateMutability": "nonpayable",
@@ -110,13 +121,6 @@
 					}
 				],
 				"name": "createOrder",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "deposit",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -152,19 +156,6 @@
 						"type": "uint256"
 					}
 				],
-				"name": "finalizeOrder",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "orderId",
-						"type": "uint256"
-					}
-				],
 				"name": "getIngredientsList",
 				"outputs": [
 					{
@@ -180,7 +171,7 @@
 								"type": "uint256"
 							}
 						],
-						"internalType": "struct IngredientTracker.Stock[]",
+						"internalType": "struct IngredientTracker.Item[]",
 						"name": "",
 						"type": "tuple[]"
 					}
@@ -197,19 +188,6 @@
 					}
 				],
 				"name": "orderArrived",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "orderId",
-						"type": "uint256"
-					}
-				],
-				"name": "orderCompleted",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -286,11 +264,6 @@
 						"type": "uint8"
 					},
 					{
-						"internalType": "bool",
-						"name": "terminated",
-						"type": "bool"
-					},
-					{
 						"internalType": "string",
 						"name": "rejectionReason",
 						"type": "string"
@@ -300,7 +273,13 @@
 				"type": "function"
 			},
 			{
-				"inputs": [],
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "newDate",
+						"type": "uint256"
+					}
+				],
 				"name": "renewContract",
 				"outputs": [],
 				"stateMutability": "nonpayable",
@@ -338,6 +317,19 @@
 					}
 				],
 				"name": "resolveIssue",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					}
+				],
+				"name": "settlePayment",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -428,7 +420,7 @@
 										"type": "uint256"
 									}
 								],
-								"internalType": "struct IngredientTracker.Stock[]",
+								"internalType": "struct IngredientTracker.Item[]",
 								"name": "ingredients",
 								"type": "tuple[]"
 							},
@@ -445,7 +437,7 @@
 										"type": "uint256"
 									}
 								],
-								"internalType": "struct IngredientTracker.Stock[]",
+								"internalType": "struct IngredientTracker.Item[]",
 								"name": "damagedItems",
 								"type": "tuple[]"
 							},
@@ -480,11 +472,6 @@
 								"type": "uint8"
 							},
 							{
-								"internalType": "bool",
-								"name": "terminated",
-								"type": "bool"
-							},
-							{
 								"internalType": "string",
 								"name": "rejectionReason",
 								"type": "string"
@@ -510,6 +497,10 @@
 				],
 				"stateMutability": "view",
 				"type": "function"
+			},
+			{
+				"stateMutability": "payable",
+				"type": "receive"
 			}
 		],
 		"devdoc": {
@@ -534,17 +525,17 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 20
+			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
 		"contracts/IngredientTracker.sol": {
-			"keccak256": "0x880b0db94505d4a482248dab1195a109bbbf9086dccf3fe9117e38adf8daf571",
+			"keccak256": "0xd26e2af9247ee94a9d2e8e51cf38dfb31a6c68530d1c0767fb112082b70ebbfa",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://9f6259c5206a4d9580c2a52f28e378183bb5fa9ff1255ed07e8393e5fb8771a5",
-				"dweb:/ipfs/QmYMVWQNxybHyjXeXgrtgzPtZKGSAgyLpY6qE2ZQ8usqHV"
+				"bzz-raw://d158975374cb0d462f93892ea018e1f8c64f90b1d4654cffc909a0213180e8da",
+				"dweb:/ipfs/Qmep4yfrkF9Gwdgj3Vd5mwAM98ESS36b7PKfSSZgntoxW3"
 			]
 		}
 	},

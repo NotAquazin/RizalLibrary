@@ -54,9 +54,9 @@
 						"type": "string"
 					},
 					{
-						"internalType": "int256",
+						"internalType": "uint256",
 						"name": "_contractDuration",
-						"type": "int256"
+						"type": "uint256"
 					},
 					{
 						"internalType": "int256",
@@ -166,6 +166,25 @@
 			{
 				"inputs": [
 					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "isAuthorizedChild",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
 						"internalType": "string",
 						"name": "_ingredient",
 						"type": "string"
@@ -202,6 +221,24 @@
 			{
 				"inputs": [
 					{
+						"internalType": "string",
+						"name": "_ingredient",
+						"type": "string"
+					},
+					{
+						"internalType": "int256",
+						"name": "_reduceQty",
+						"type": "int256"
+					}
+				],
+				"name": "stockSold",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
 						"internalType": "address",
 						"name": "",
 						"type": "address"
@@ -220,9 +257,9 @@
 						"type": "string"
 					},
 					{
-						"internalType": "int256",
+						"internalType": "uint256",
 						"name": "contractDuration",
-						"type": "int256"
+						"type": "uint256"
 					},
 					{
 						"internalType": "int256",
@@ -362,9 +399,9 @@
 								"type": "string[]"
 							},
 							{
-								"internalType": "int256",
+								"internalType": "uint256",
 								"name": "contractDuration",
-								"type": "int256"
+								"type": "uint256"
 							},
 							{
 								"internalType": "int256",
@@ -408,17 +445,17 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 20
+			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
 		"contracts/IngredientTracker.sol": {
-			"keccak256": "0x880b0db94505d4a482248dab1195a109bbbf9086dccf3fe9117e38adf8daf571",
+			"keccak256": "0xd26e2af9247ee94a9d2e8e51cf38dfb31a6c68530d1c0767fb112082b70ebbfa",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://9f6259c5206a4d9580c2a52f28e378183bb5fa9ff1255ed07e8393e5fb8771a5",
-				"dweb:/ipfs/QmYMVWQNxybHyjXeXgrtgzPtZKGSAgyLpY6qE2ZQ8usqHV"
+				"bzz-raw://d158975374cb0d462f93892ea018e1f8c64f90b1d4654cffc909a0213180e8da",
+				"dweb:/ipfs/Qmep4yfrkF9Gwdgj3Vd5mwAM98ESS36b7PKfSSZgntoxW3"
 			]
 		}
 	},

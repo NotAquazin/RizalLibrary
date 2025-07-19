@@ -41,7 +41,7 @@ contract SupplierContractHub {
         string name;
         string[] ingredientsList;
         mapping (string => Stock) stockList;
-        int contractDuration;
+        uint contractDuration;
         int terminationPenalty;
         Discount[] discounts;
         bool active;
@@ -51,13 +51,15 @@ contract SupplierContractHub {
         address supplierAddress;
         string name;
         string[] ingredientsList;
-        int contractDuration;
+        uint contractDuration;
         int terminationPenalty;
         bool active;
     }        
 
     mapping(address => Supplier) public suppliers; 
     mapping(address => RestaurantContracts[]) public allContracts;
+    // to check if it is an authorized child contract
+    mapping(address => bool) public isAuthorizedChild;
 
     modifier isNotSupplier(){
         require(suppliers[msg.sender].active == false, "You are already a supplier!");
@@ -69,7 +71,12 @@ contract SupplierContractHub {
         _;
     }
 
-	function addSupplier(string memory _name, int _contractDuration, int _terminationPenalty) external isNotSupplier{
+    modifier isAuthorized() {
+        require(isAuthorizedChild[msg.sender], "Only authorized child contracts can call this function.");
+    _;
+    }
+
+	function addSupplier(string memory _name, uint _contractDuration, int _terminationPenalty) external isNotSupplier{
         Supplier storage newSupplier = suppliers[msg.sender];
         newSupplier.supplierAddress = msg.sender;
         newSupplier.name = _name;
@@ -107,7 +114,7 @@ contract SupplierContractHub {
     }
 
     //function to reduce the quantity on the stock Sold
-    function stockSold(string memory _ingredient, int _reduceQty) private {
+    function stockSold(string memory _ingredient, int _reduceQty) external {
         suppliers[msg.sender].stockList[_ingredient].qty -= _reduceQty;
     }
 
@@ -143,9 +150,12 @@ contract SupplierContractHub {
     }
 
     function selectSupplier(address _supplierAddress, string memory _restaurantName) external isNotSupplier {
-        IngredientTracker ingredientTracker = new IngredientTracker(_supplierAddress, msg.sender, address(this));
+        IngredientTracker ingredientTracker = new IngredientTracker(_supplierAddress, msg.sender, address(this), suppliers[_supplierAddress].contractDuration);
         allContracts[msg.sender].push(RestaurantContracts({contractAddress: address(ingredientTracker), supplierName: suppliers[_supplierAddress].name, supplierAddress: _supplierAddress, restaurantName: _restaurantName}));
         //as of now the viewing of contracts is only for restaurant, add functionality for supplier to view theirs as well
+
+        // make the new child contract a authorized child
+        isAuthorizedChild[address(ingredientTracker)] = true;
     }
 
     function viewContracts() external view returns (RestaurantContracts[] memory){
@@ -181,7 +191,9 @@ contract IngredientTracker {
     address restaurant;
     address supplier;
     address private parent;
+    uint expiryDate;
     Discount[] discounts;
+    bool terminated; 
     
     struct Discount{
         uint percentage;
@@ -191,33 +203,34 @@ contract IngredientTracker {
     enum DeliveryStatus {InStorage, Finalized, Shipped, Arrived, Completed}
     enum IssueStatus { NoIssue, UnderInvestigation, FoundIssue, Verified, Rejected, Resolved }
 
-    struct Stock{
+    struct Item{
         string ingredient;
         uint qty; 
     }
 
     struct Order {
         uint id;
-        Stock[] ingredients;
-        Stock[] damagedItems;
+        Item[] ingredients;
+        Item[] damagedItems;
         uint date;
         uint discount;
         uint refundPrice; 
         uint finalPrice;
         DeliveryStatus deliveryStatus;
         IssueStatus issueStatus;
-        bool terminated;
         string rejectionReason;
     }
 
     mapping(uint => Order) public orders;
     uint public orderCount;
 
-    constructor(address _supplier, address _restaurant, address _parent){
+    constructor(address _supplier, address _restaurant, address _parent, uint _expiryDate){
         restaurant = _restaurant;
         supplier = _supplier;
         parent = _parent;
+        expiryDate = block.timestamp + _expiryDate;
         fetchDiscounts();
+        terminated = false; 
         //Child contract will be initialized with the supplier's stock list,discounts, contract duration, termination penalty, active status, name, stock
     }
 
@@ -261,13 +274,13 @@ contract IngredientTracker {
         _;
     }
 
-    modifier isNotExpired(uint orderId) {
-        require(block.timestamp <= orders[orderId].date, "Order has expired.");
+    modifier isNotExpired() {
+        require(block.timestamp <= expiryDate, "Contract has expired.");
         _;
     }
     
-    modifier isNotTerminated(uint orderId) {
-        require(!orders[orderId].terminated, "Order is terminated.");
+    modifier isNotTerminated() {
+        require(terminated == false, "Contract is terminated.");
     _;
     }
 
@@ -297,14 +310,6 @@ contract IngredientTracker {
         orders[orderId].issueStatus = IssueStatus.UnderInvestigation;
     }
 
-    function finalizeOrder(uint orderId) public isRestaurant {
-        orders[orderId].deliveryStatus = DeliveryStatus.Finalized;
-    }
-
-    function orderCompleted(uint orderId) public hasArrived(orderId) isRestaurant hasNotFoundIssue(orderId) {
-        orders[orderId].deliveryStatus = DeliveryStatus.Completed;
-    }
-
     function viewOrder(uint orderId) public view returns (Order memory){
         return orders[orderId];
     }
@@ -325,18 +330,18 @@ contract IngredientTracker {
         newOrder.id = orderCount;
         newOrder.deliveryStatus = DeliveryStatus.InStorage; 
         newOrder.date = block.timestamp + _deliverydate;
-        newOrder.terminated = false;
     }
 
     function addIngredient(uint orderId, string memory _ingredient, uint _qty) isRestaurant public {
-        orders[orderId].ingredients.push(Stock({ingredient: _ingredient, qty : _qty}));
+        require(orders[orderId].deliveryStatus == DeliveryStatus.InStorage, "Your order has already been paid and processed.");
+        orders[orderId].ingredients.push(Item({ingredient: _ingredient, qty : _qty}));
     }
 
-    function getIngredientsList(uint orderId) public view returns (Stock[] memory){
+    function getIngredientsList(uint orderId) public view returns (Item[] memory){
         return orders[orderId].ingredients;
     }
 
-    function copyLastOrder() public {
+    function copyLastOrder(uint date) public {
         require(orderCount > 0, "No previous order to copy!");
   
         orderCount++;
@@ -345,13 +350,12 @@ contract IngredientTracker {
         newOrder.id = orderCount;
         newOrder.deliveryStatus = DeliveryStatus.InStorage;
         newOrder.issueStatus = IssueStatus.NoIssue;
-        newOrder.date = orders[orderCount - 1].date;
-        newOrder.terminated = false;
+        newOrder.date = block.timestamp + date;
 
         // copying the ingredients
         for (uint i = 0; i < orders[orderCount - 1].ingredients.length; i++) {
         newOrder.ingredients.push(
-            Stock({
+            Item({
                 ingredient: orders[orderCount - 1].ingredients[i].ingredient,
                 qty: orders[orderCount - 1].ingredients[i].qty
             })
@@ -359,7 +363,7 @@ contract IngredientTracker {
         }
     }
 
-    function editOrder(uint orderId, string memory _ingredient, uint _qty) isRestaurant isNotExpired(orderId) isNotTerminated(orderId) public {
+    function editOrder(uint orderId, string memory _ingredient, uint _qty) isRestaurant isNotExpired() isNotTerminated() public {
         require(orders[orderId].deliveryStatus == DeliveryStatus.InStorage, "Order already finalized!");
         bool isIngredientPresent = false;
 
@@ -377,7 +381,7 @@ contract IngredientTracker {
         require(isIngredientPresent == true, "Ingredient not found in the order!");
     }
 
-    function checkoutOrder(uint orderId) payable public isNotExpired(orderId) isNotTerminated(orderId) {
+    function checkoutOrder(uint orderId) payable public isNotExpired() isNotTerminated() isRestaurant {
         Order storage currentOrder = orders[orderId];
         require(currentOrder.deliveryStatus == DeliveryStatus.InStorage, "Order already checked out or finalized.");
 
@@ -413,15 +417,17 @@ contract IngredientTracker {
         for (uint i = 0; i < currentOrder.ingredients.length; i++) {
             string memory ingredientName = currentOrder.ingredients[i].ingredient;
             uint qtyOrdered = currentOrder.ingredients[i].qty;
-            SupplierContractHub(parent).reduceStock(ingredientName, int(qtyOrdered));
+            SupplierContractHub(parent).stockSold(ingredientName, int(qtyOrdered));
         }
 
         currentOrder.deliveryStatus = DeliveryStatus.Finalized;
     }
 
+    receive() external payable {}
+
     //restaurant adds to damagedItems a damaged ingredient and quantity
     function reportIssue(uint orderId, string memory _ingredient, uint _qty) isRestaurant isUnderInvestigation(orderId) public {
-        orders[orderId].damagedItems.push(Stock({ingredient: _ingredient, qty : _qty}));
+        orders[orderId].damagedItems.push(Item({ingredient: _ingredient, qty : _qty}));
     }
 
     //submits it to supplier
@@ -449,7 +455,7 @@ contract IngredientTracker {
     function resolveIssue(uint orderId) public isSupplier {
         require(orders[orderId].issueStatus == IssueStatus.Verified, "Order issue has not been verified!");
 
-        Stock[] memory items = orders[orderId].damagedItems;
+        Item[] memory items = orders[orderId].damagedItems;
         uint newDamagedPrice = 0;
         for (uint i = 0; i < items.length; i++) {
             uint price = SupplierContractHub(parent).getPrice(supplier, items[i].ingredient);
@@ -462,15 +468,23 @@ contract IngredientTracker {
     }
     
     function terminateContract() public {
+        parent = address(0);
+        supplier = address(0);
+        restaurant = address(0);
+        terminated = true;
+    }
+
+    function settlePayment(uint orderId) public isRestaurant hasArrived(orderId) {
+        require(orders[orderId].issueStatus == IssueStatus.NoIssue || orders[orderId].issueStatus == IssueStatus.Resolved || orders[orderId].issueStatus == IssueStatus.Rejected, "Your order is still under quality checking.");
+        payable(supplier).transfer(orders[orderId].finalPrice);
+        payable(restaurant).transfer(orders[orderId].refundPrice);
+
+        orders[orderId].deliveryStatus = DeliveryStatus.Completed;
 
     }
 
-    function deposit() public {
-
-    }
-
-    function renewContract() public {
-        //change date to new one in parameter
+    function renewContract(uint newDate) public isRestaurant {
+        expiryDate = newDate;
     }
 
     function cancelOrder(uint orderId) public isRestaurant {
@@ -487,6 +501,6 @@ contract IngredientTracker {
     }
 
 
-    //Update code: Mady 3:50AM 7/19/2025. 492 lines of code
+    //Update code: Kino 10:54AM 7/19/2025. 501 lines of code
 
 }
