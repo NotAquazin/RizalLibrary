@@ -270,6 +270,7 @@ contract IngredientTracker {
     Discount[] discounts;
     bool terminated; 
     
+    /// @notice Discount struct that is used to calculate discounts in orders
     struct Discount{
         uint percentage;
         uint minimumCost;
@@ -278,11 +279,13 @@ contract IngredientTracker {
     enum DeliveryStatus {InStorage, Finalized, Shipped, Arrived, Completed}
     enum IssueStatus { NoIssue, UnderInvestigation, FoundIssue, Verified, Rejected, Resolved }
 
+    /// @notice Item struct that contains the details of an item, such as its name and quantity
     struct Item{
         string ingredient;
         uint qty; 
     }
 
+    /// @notice Order struct that contains the specific details of the order
     struct Order {
         uint id;
         Item[] ingredients;
@@ -299,6 +302,7 @@ contract IngredientTracker {
     mapping(uint => Order) public orders;
     uint public orderCount;
 
+    /// @notice Instantiates the child contract, together the address of the restaurant, supplier, parent, and expiry date
     constructor(address _supplier, address _restaurant, address _parent, uint _expiryDate){
         restaurant = _restaurant;
         supplier = _supplier;
@@ -376,10 +380,13 @@ contract IngredientTracker {
     }
 
     //FOR TESTING PURPOSES ONLY
+    /// @notice Let's the user view the address of the specific supplier
+    /// @return supplierAddress Returns the address of the supplier
     function viewSupplierAddress() external view returns(address supplierAddress) {
         return supplier;
     }
 
+    /// @notice Fetches current discounts from the parent contract and stores them locally.
     function fetchDiscounts() private {
         SupplierContractHub.Discount[] memory supplierDiscounts = SupplierContractHub(parent).viewDiscount(supplier);
         delete discounts;
@@ -417,6 +424,8 @@ contract IngredientTracker {
         return orders[orderId].deliveryStatus;
     }    
 
+    /// @notice Marks the order as having no issues after delivery.
+    /// @param orderId The ID of the order being confirmed as issue-free.
     function orderNoIssue(uint orderId) public hasArrived(orderId) isRestaurant {
         orders[orderId].issueStatus = IssueStatus.NoIssue;
     }
@@ -578,6 +587,7 @@ contract IngredientTracker {
         return totalCost;
     }
 
+    /// @notice Allows the contract to receive plain Ether transfers.
     receive() external payable {}
 
     /// @notice Adds a damaged ingredient and its quantity to damaedItems array. 
