@@ -134,11 +134,12 @@ contract SupplierContractHub {
     }
 
     /// @notice Reduces the quantity of stocks of an ingredient.
+    /// @param _supplier the supplier's address.
     /// @param _ingredient the ingredient to be reduced in quantity.
     /// @param _reduceQty the number to reduce in the ingredient's quantity.
     /// @dev can only be called by the a child contract when order is made.
-    function stockSold(string memory _ingredient, int _reduceQty) external isAuthorized {
-        suppliers[msg.sender].stockList[_ingredient].qty -= _reduceQty;
+    function stockSold(address _supplier, string memory _ingredient, int _reduceQty) external isAuthorized {
+        suppliers[_supplier].stockList[_ingredient].qty -= _reduceQty;
     }
 
     /// @notice Adds a discount to the list of discounts of a supplier
@@ -235,6 +236,7 @@ contract SupplierContractHub {
     /// @notice Used in returning the supplier's stock list
     /// @dev This is used in addIngredient() function in the child contract
     /// @param _supplier The address of the supplier
+    /// @return ingredientsList of the supplier
     function getSupplierIngredientsList(address _supplier) external view returns (string[] memory) {
        return suppliers[_supplier].ingredientsList;
     }
@@ -243,6 +245,9 @@ contract SupplierContractHub {
     /// @dev This is used in addIngredient() function in the child contract
     /// @param _supplier The address of the supplier
     /// @param _ingredient The ingredient that needs to be searched
+    /// @return ingredient The name of the ingredient
+    /// @return qty The quantity of the ingredient
+    /// @return price The price of the ingredient
     function getIngredientStockDetails(address _supplier, string memory _ingredient) external view returns (string memory, int, uint) {
         Stock memory s = suppliers[_supplier].stockList[_ingredient];
         return (s.ingredient, s.qty, s.price);
@@ -303,68 +308,68 @@ contract IngredientTracker {
         terminated = false; 
     }
 
-    ///@notice Checks if the user is the restaurant
+    /// @notice Checks if the user is the restaurant
     modifier isRestaurant() {
         require(msg.sender == restaurant, "You are not the restaurant!");
         _;
     }
 
-    ///@notice Checks if the user is the supplier
+    /// @notice Checks if the user is the supplier
     modifier isSupplier() {
         require(msg.sender == supplier, "You are not the authorized supplier!");
         _;
     }
     
-    ///@notice Checks if the status of the delivery is shipped
-    ///@param orderId Specifies the order ID 
+    /// @notice Checks if the status of the delivery is shipped
+    /// @param orderId Specifies the order ID 
     modifier isShipped(uint orderId) {
         require(orders[orderId].deliveryStatus == DeliveryStatus.Shipped, "Order has not been shipped!");
         _;
     }
 
-    ///@notice Checks if the status of the delivery has arrived
-    ///@param orderId Specifies the order ID 
+    /// @notice Checks if the status of the delivery has arrived
+    /// @param orderId Specifies the order ID 
     modifier hasArrived(uint orderId) {
         require(orders[orderId].deliveryStatus == DeliveryStatus.Arrived, "Order has not arrived!");
         _;
     }
 
-    ///@notice Checks if the order is finalized
-    ///@param orderId Specifies the order ID 
+    /// @notice Checks if the order is finalized
+    /// @param orderId Specifies the order ID 
     modifier isFinalized(uint orderId) {
         require(orders[orderId].deliveryStatus == DeliveryStatus.Finalized, "Order is not finalized by restaurant!");
         _;
     }
 
     
-    ///@notice Checks if the order is under investigation
-    ///@param orderId Specifies the order ID 
+    /// @notice Checks if the order is under investigation
+    /// @param orderId Specifies the order ID 
     modifier isUnderInvestigation(uint orderId) {
         require(orders[orderId].issueStatus == IssueStatus.UnderInvestigation, "Order has not arrived so it is not under investigation!");
         _;
     }
 
-    ///@notice Checks if the there was any issues in the quality check
-    ///@param orderId Specifies the order ID 
+    /// @notice Checks if the there was any issues in the quality check
+    /// @param orderId Specifies the order ID 
     modifier hasFoundIssue(uint orderId) {
         require(orders[orderId].issueStatus == IssueStatus.FoundIssue, "You have not reported an issue with this order!");
         _;
     }
 
-    ///@notice Checks if the there wasn't any issues in the quality check
-    ///@param orderId Specifies the order ID 
+    /// @notice Checks if the there wasn't any issues in the quality check
+    /// @param orderId Specifies the order ID 
     modifier hasNotFoundIssue(uint orderId) {
         require(orders[orderId].issueStatus != IssueStatus.FoundIssue, "An issue has been reported with this order!");
         _;
     }
 
-    ///@notice Checks if the contract has not expired
+    /// @notice Checks if the contract has not expired
     modifier isNotExpired() {
         require(block.timestamp <= expiryDate, "Contract has expired.");
         _;
     }
     
-    ///@notice Checks if the contract has not been terminated
+    /// @notice Checks if the contract has not been terminated
     modifier isNotTerminated() {
         require(terminated == false, "Contract is terminated.");
         _;
@@ -384,28 +389,30 @@ contract IngredientTracker {
         }
     }
 
-    ///@notice changes delivery status to shipped
-    ///@param orderId Specifies the order ID 
+    /// @notice changes delivery status to shipped
+    /// @param orderId Specifies the order ID 
     function shipOrder(uint orderId) public isSupplier isFinalized(orderId) {
         orders[orderId].deliveryStatus = DeliveryStatus.Shipped;
     }
     
-    ///@notice Changes delivery status to arrived
-    ///@dev Changes issueStatus to UnderInvestigation for quality check
-    ///@param orderId Specifies the order ID 
+    /// @notice Changes delivery status to arrived
+    /// @dev Changes issueStatus to UnderInvestigation for quality check
+    /// @param orderId Specifies the order ID 
     function orderArrived(uint orderId) public isShipped(orderId) isSupplier {
         orders[orderId].deliveryStatus = DeliveryStatus.Arrived;
         orders[orderId].issueStatus = IssueStatus.UnderInvestigation;
     }
 
-    ///@notice Views the details of the order
-    ///@param orderId Specifies the order ID 
+    /// @notice Views the details of the order
+    /// @param orderId Specifies the order ID 
+    /// @return orders information given the orderId
     function viewOrder(uint orderId) public view returns (Order memory){
         return orders[orderId];
     }
 
-    ///@notice Checks the status of the delivery
-    ///@param orderId Specifies the order ID 
+    /// @notice Checks the status of the delivery
+    /// @param orderId Specifies the order ID 
+    /// @return deliveryStatus of the specific order
     function checkDeliveryStatus(uint orderId) public view returns (DeliveryStatus){
         return orders[orderId].deliveryStatus;
     }    
@@ -471,13 +478,14 @@ contract IngredientTracker {
 
     /// @notice Returns the ingredients for the specified order
     /// @param orderId The ID of the order that needs to be referenced
+    /// @return ingredients The list of ingredients of the order
     function getIngredientsList(uint orderId) public view returns (Item[] memory){
         return orders[orderId].ingredients;
     }
 
-    ///@notice Copies last order for repeat orders
-    ///@dev Has the same details from the last order but the date
-    ///@param date The date used to specify delivery date plus block timestamp
+    /// @notice Copies last order for repeat orders
+    /// @dev Has the same details from the last order but the date
+    /// @param date The date used to specify delivery date plus block timestamp
     function copyLastOrder(uint date) isNotTerminated isNotExpired isRestaurant public {
         require(orderCount > 0, "No previous order to copy!");
   
@@ -500,11 +508,11 @@ contract IngredientTracker {
         }
     }
 
-    ///@notice Edit the quantity of the specified ingredient in the order
-    ///@dev Uses keccak256 hashing since Solidity can't compare strings
-    ///@param orderId Specifies the order
-    ///@param _ingredient Specifies the ingredient which quantity will be changed
-    ///@param _qty Specifies the new quantity of the ingredient specified
+    /// @notice Edit the quantity of the specified ingredient in the order
+    /// @dev Uses keccak256 hashing since Solidity can't compare strings
+    /// @param orderId Specifies the order
+    /// @param _ingredient Specifies the ingredient which quantity will be changed
+    /// @param _qty Specifies the new quantity of the ingredient specified
     function editOrder(uint orderId, string memory _ingredient, uint _qty) isNotTerminated isNotExpired isRestaurant  public {
         require(orders[orderId].deliveryStatus == DeliveryStatus.InStorage, "Order already finalized!");
         bool isIngredientPresent = false;
@@ -523,30 +531,31 @@ contract IngredientTracker {
         require(isIngredientPresent == true, "Ingredient not found in the order!");
     }
 
-    ///@notice Checks out the specified order and accepts payment at the same time
-    ///@dev It sets the final price before all the verification on the side of supplier
-    ///@dev Reduces stock as well
-    ///@param orderId Specifies the order ID
+    /// @notice Checks out the specified order and accepts payment at the same time
+    /// @dev It sets the final price before all the verification on the side of supplier
+    /// @dev Reduces stock as well
+    /// @param orderId Specifies the order ID
     function checkoutOrder(uint orderId) payable public isNotExpired isNotTerminated isRestaurant {
         Order storage currentOrder = orders[orderId];
         require(currentOrder.deliveryStatus == DeliveryStatus.InStorage, "Order already checked out or finalized.");
-        uint totalCost = computePrice(orderId);
+        uint totalCost = this.computePrice(orderId);
         
         orders[orderId].finalPrice = totalCost;        
 
-        require(msg.value == totalCost, "Not the exact money sent for the order!");
+        require(msg.value >= totalCost, "Not the exact money sent for the order!");
 
         for (uint i = 0; i < currentOrder.ingredients.length; i++) {
             string memory ingredientName = currentOrder.ingredients[i].ingredient;
             uint qtyOrdered = currentOrder.ingredients[i].qty;
-            SupplierContractHub(parent).stockSold(ingredientName, int(qtyOrdered));
+            SupplierContractHub(parent).stockSold(supplier, ingredientName, int(qtyOrdered));
         }
         orders[orderId].deliveryStatus = DeliveryStatus.Finalized;
     }
 
-    ///@notice Computes the price of the order
-    ///@param orderId Specifies the ID of the order to be computed
-    function computePrice(uint orderId) public returns (uint price){
+    /// @notice Computes the price of the order
+    /// @param orderId Specifies the ID of the order to be computed
+    /// @return price The totalCost of the order
+    function computePrice(uint orderId) public view returns (uint price){
         uint totalCost = 0;        
         Order memory currentOrder = orders[orderId];
         for (uint i = 0; i < currentOrder.ingredients.length; i++) {
@@ -566,19 +575,19 @@ contract IngredientTracker {
             }
         }
         totalCost = (totalCost * (100 - highestDiscount))/ 100;
-
-        orders[orderId].finalPrice = totalCost;      
         return totalCost;
     }
 
     receive() external payable {}
 
-    //restaurant adds to damagedItems a damaged ingredient and quantity
+    /// @notice Adds a damaged ingredient and its quantity to damaedItems array. 
+    /// @param orderId Specifies the ID of the order, the (damaged) ingredient, and how many is damaged.
     function reportIssue(uint orderId, string memory _ingredient, uint _qty) isRestaurant isUnderInvestigation(orderId) public {
         orders[orderId].damagedItems.push(Item({ingredient: _ingredient, qty : _qty}));
     }
 
-    //submits it to supplier
+    /// @notice changes issueStatus of order to FoundIssue if there are damaged items and it is the first time being reported
+    /// @param orderId Specifies the ID of the order, the (damaged) ingredient, and how many is damaged
     function submitIssue(uint orderId) public {
         if(orders[orderId].issueStatus == IssueStatus.FoundIssue){
             revert("You can only report issue once!");
@@ -589,7 +598,8 @@ contract IngredientTracker {
         orders[orderId].issueStatus = IssueStatus.FoundIssue;
     }
 
-    //suppllier verifies the issue
+    /// @notice supplier can verify or reject the reason (then provide reason) 
+    /// @param orderId Specifies the ID of the order, boolean value if they agree/disagree with the issue, and the reason
     function verifyIssue(uint orderId, bool valid, string memory reason) public isSupplier hasFoundIssue(orderId) { 
         if (valid) {
             orders[orderId].issueStatus = IssueStatus.Verified;
@@ -599,7 +609,9 @@ contract IngredientTracker {
         }
     }
 
-    //finds new final price. resolves the issue 
+    /// @notice if the issue is verified, supplier calculates refundPrice which is reduced from finalPrice (which includes the original discount) and given back to restaurant
+    /// @dev refundPrice is standardize to be half of the original price. Example: an apple that costs 10 that is verified as damaged will now cost 5. 
+    /// @param orderId Specifies the ID of the order
     function resolveIssue(uint orderId) public isSupplier {
         require(orders[orderId].issueStatus == IssueStatus.Verified, "Order issue has not been verified!");
 
@@ -643,6 +655,10 @@ contract IngredientTracker {
         expiryDate = newDate;
     }
 
+    /// @notice Cancels order and removes it from the array
+    /// @dev cancelOrder can only happen when the order is not processed yet (i.e. it has not been paid) 
+    /// @dev the order being cancelled and the last order of the array is swapped and the last order (now being the one cancelled) is deleted
+    /// @param orderId Specifies the ID of the orde
     function cancelOrder(uint orderId) public isNotTerminated isRestaurant {
         require(orderId > 0 && orderId <= orderCount, "Invalid order ID");
         require(orders[orderId].deliveryStatus == DeliveryStatus.InStorage, "Order has already been processed.");

@@ -59,9 +59,9 @@
 						"type": "uint256"
 					},
 					{
-						"internalType": "int256",
+						"internalType": "uint256",
 						"name": "_terminationPenalty",
-						"type": "int256"
+						"type": "uint256"
 					}
 				],
 				"name": "addSupplier",
@@ -152,11 +152,83 @@
 						"type": "string"
 					}
 				],
+				"name": "getIngredientStockDetails",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_supplier",
+						"type": "address"
+					},
+					{
+						"internalType": "string",
+						"name": "_ingredient",
+						"type": "string"
+					}
+				],
 				"name": "getPrice",
 				"outputs": [
 					{
 						"internalType": "uint256",
 						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_supplier",
+						"type": "address"
+					}
+				],
+				"name": "getSupplierIngredientsList",
+				"outputs": [
+					{
+						"internalType": "string[]",
+						"name": "",
+						"type": "string[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_supplier",
+						"type": "address"
+					}
+				],
+				"name": "getSupplierPenalty",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "penalty",
 						"type": "uint256"
 					}
 				],
@@ -221,6 +293,11 @@
 			{
 				"inputs": [
 					{
+						"internalType": "address",
+						"name": "_supplier",
+						"type": "address"
+					},
+					{
 						"internalType": "string",
 						"name": "_ingredient",
 						"type": "string"
@@ -262,9 +339,9 @@
 						"type": "uint256"
 					},
 					{
-						"internalType": "int256",
+						"internalType": "uint256",
 						"name": "terminationPenalty",
-						"type": "int256"
+						"type": "uint256"
 					},
 					{
 						"internalType": "bool",
@@ -404,9 +481,9 @@
 								"type": "uint256"
 							},
 							{
-								"internalType": "int256",
+								"internalType": "uint256",
 								"name": "terminationPenalty",
-								"type": "int256"
+								"type": "uint256"
 							},
 							{
 								"internalType": "bool",
@@ -425,18 +502,184 @@
 		],
 		"devdoc": {
 			"kind": "dev",
-			"methods": {},
+			"methods": {
+				"addDiscount(uint256,uint256)": {
+					"params": {
+						"_discount": "the whole number percentage of the discount",
+						"_minimumCost": "the minimum total cost to avail the discount"
+					}
+				},
+				"addStock(string,int256,uint256)": {
+					"details": "checks if ingredient is already part of the listed stocks, if not add it to do the list of ingredients.",
+					"params": {
+						"_ingredient": "the ingredient name to be added.",
+						"_price": "the unit price of an ingredient.",
+						"_qty": "the quantity of an ingredient to be added."
+					}
+				},
+				"addSupplier(string,uint256,uint256)": {
+					"details": "supplier address is added to the list of supplier addresses",
+					"params": {
+						"_contractDuration": "is the length of a contracts validity",
+						"_name": "is the name of the supplier",
+						"_terminationPenalty": "is the penalty fee for terminating the contract"
+					}
+				},
+				"getIngredientQty(address,string)": {
+					"params": {
+						"_ingredient": "the ingredient of which's quantity is to be retrieved.",
+						"_supplier": "the address of the supplier."
+					},
+					"returns": {
+						"_0": "qty of the ingredient in stock."
+					}
+				},
+				"getIngredientStockDetails(address,string)": {
+					"details": "This is used in addIngredient() function in the child contract",
+					"params": {
+						"_ingredient": "The ingredient that needs to be searched",
+						"_supplier": "The address of the supplier"
+					},
+					"returns": {
+						"_0": "ingredient The name of the ingredient",
+						"_1": "qty The quantity of the ingredient",
+						"_2": "price The price of the ingredient"
+					}
+				},
+				"getPrice(address,string)": {
+					"params": {
+						"_ingredient": "the ingredient of which's price to be retrieved.",
+						"_supplier": "the address of the supplier"
+					},
+					"returns": {
+						"_0": "uint price of the ingredient."
+					}
+				},
+				"getSupplierIngredientsList(address)": {
+					"details": "This is used in addIngredient() function in the child contract",
+					"params": {
+						"_supplier": "The address of the supplier"
+					},
+					"returns": {
+						"_0": "ingredientsList of the supplier"
+					}
+				},
+				"getSupplierPenalty(address)": {
+					"params": {
+						"_supplier": "the address of the supplier"
+					},
+					"returns": {
+						"penalty": "the uint of how much the termination penalty of a supplier's associated contracts are."
+					}
+				},
+				"reduceStock(string,int256)": {
+					"details": "can only be called by the supplier on their own stock",
+					"params": {
+						"_ingredient": "the ingredient to be reduced in quantity.",
+						"_reduceQty": "the number to reduce in the ingredient's quantity."
+					}
+				},
+				"selectSupplier(address,string)": {
+					"details": "Adds the contract address to the list of authorized child contracts.",
+					"params": {
+						"_restaurantName": "the name of the restaurant who selects the supplier.",
+						"_supplierAddress": "the address of the selected supplier."
+					}
+				},
+				"stockSold(address,string,int256)": {
+					"details": "can only be called by the a child contract when order is made.",
+					"params": {
+						"_ingredient": "the ingredient to be reduced in quantity.",
+						"_reduceQty": "the number to reduce in the ingredient's quantity."
+					}
+				},
+				"viewContracts()": {
+					"returns": {
+						"_0": "RestaurantContracts an array of RestaurantContracts structs."
+					}
+				},
+				"viewDiscount(address)": {
+					"params": {
+						"_supplierAddress": "the address of the supplier of which discounts' are to be viewed."
+					},
+					"returns": {
+						"_0": "Discount array of Discount structs"
+					}
+				},
+				"viewSupplierStock(address)": {
+					"params": {
+						"_supplierAddress": "the address of the supplier."
+					},
+					"returns": {
+						"_0": "stockSummary an array of Stock structs."
+					}
+				},
+				"viewSuppliers()": {
+					"returns": {
+						"_0": "summaries an arry of SupplierSummary structs"
+					}
+				}
+			},
 			"version": 1
 		},
 		"userdoc": {
 			"kind": "user",
-			"methods": {},
+			"methods": {
+				"addDiscount(uint256,uint256)": {
+					"notice": "Adds a discount to the list of discounts of a supplier"
+				},
+				"addStock(string,int256,uint256)": {
+					"notice": "Adds ingredient stock details to the list of stocks of a supplier."
+				},
+				"addSupplier(string,uint256,uint256)": {
+					"notice": "Adds a supplier to the list of suppliers with its details."
+				},
+				"clearDiscounts()": {
+					"notice": "Clears the list of discounts of a supplier"
+				},
+				"getIngredientQty(address,string)": {
+					"notice": "retrives the quantity of a certain ingredient from the respective supplier."
+				},
+				"getIngredientStockDetails(address,string)": {
+					"notice": "Used to get the details of a specific ingredient"
+				},
+				"getPrice(address,string)": {
+					"notice": "retrieves the price of an ingredient of its respective supplier."
+				},
+				"getSupplierIngredientsList(address)": {
+					"notice": "Used in returning the supplier's stock list"
+				},
+				"getSupplierPenalty(address)": {
+					"notice": "Retrieves the termination penalty amount of a suppliers' contracts."
+				},
+				"reduceStock(string,int256)": {
+					"notice": "Reduces the quantity of stocks of an ingredient."
+				},
+				"selectSupplier(address,string)": {
+					"notice": "selects the supplier that a restaurant will want to have a contract with."
+				},
+				"stockSold(address,string,int256)": {
+					"notice": "Reduces the quantity of stocks of an ingredient."
+				},
+				"viewContracts()": {
+					"notice": "Views the list of contracts of a restaurant."
+				},
+				"viewDiscount(address)": {
+					"notice": "Views the list of discounts of a certain supplier."
+				},
+				"viewSupplierStock(address)": {
+					"notice": "Views the stock details of a supplier such as the ingredients, their quantities, and unit pricings."
+				},
+				"viewSuppliers()": {
+					"notice": "View the list of suppliers with their basic details"
+				}
+			},
 			"version": 1
 		}
 	},
 	"settings": {
 		"compilationTarget": {
-			"contracts/Testing.sol": "SupplierContractHub"
+			"contracts/IngredientTracker.sol": "SupplierContractHub"
 		},
 		"evmVersion": "prague",
 		"libraries": {},
@@ -450,12 +693,12 @@
 		"remappings": []
 	},
 	"sources": {
-		"contracts/Testing.sol": {
-			"keccak256": "0x0210170c8f206fbd1fb53b6d727f4250f9493ae38afce1ff81cfe90d606a0ed7",
+		"contracts/IngredientTracker.sol": {
+			"keccak256": "0xc59c0b76da290a280daeb88d573a35c3ed9d76a89c926ae0c91e5a9cec0519f3",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://3423f78521fc7950703e8e63693dcb44c3b434ca3e4e5db696536be0a1c33150",
-				"dweb:/ipfs/QmVintQQ1DxQQWEwVEqojF4erZFNDZyTYykpRBpycjH7Ta"
+				"bzz-raw://e1c2ce2a028bb75284a0957985a1afea089895bf74b4fa84622dfadc69215c9f",
+				"dweb:/ipfs/QmcTHWTQABMPBhiULFm9Lx2QAHesN2xFMvArrrv4tgEtMH"
 			]
 		}
 	},

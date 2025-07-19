@@ -383,7 +383,7 @@
 				"inputs": [],
 				"name": "terminateContract",
 				"outputs": [],
-				"stateMutability": "nonpayable",
+				"stateMutability": "payable",
 				"type": "function"
 			},
 			{
@@ -524,18 +524,130 @@
 		],
 		"devdoc": {
 			"kind": "dev",
-			"methods": {},
+			"methods": {
+				"addIngredient(uint256,string,uint256)": {
+					"details": "Checks if the ingredient is in stock in supplierChecks if the required quantity of the ingredient is availableChecks if the specified ingredient is already in the order list",
+					"params": {
+						"_ingredient": "The specific ingredient to be added",
+						"_qty": "The quantity of the ingredient specified",
+						"orderId": "The ID of the order where the ingredients will added"
+					}
+				},
+				"checkDeliveryStatus(uint256)": {
+					"params": {
+						"orderId": "Specifies the order ID "
+					},
+					"returns": {
+						"_0": "deliveryStatus of the specific order"
+					}
+				},
+				"checkoutOrder(uint256)": {
+					"details": "It sets the final price before all the verification on the side of supplierReduces stock as well",
+					"params": {
+						"orderId": "Specifies the order ID"
+					}
+				},
+				"computePrice(uint256)": {
+					"params": {
+						"orderId": "Specifies the ID of the order to be computed"
+					},
+					"returns": {
+						"price": "The totalCost of the order"
+					}
+				},
+				"copyLastOrder(uint256)": {
+					"details": "Has the same details from the last order but the date",
+					"params": {
+						"date": "The date used to specify delivery date plus block timestamp"
+					}
+				},
+				"createOrder(uint256)": {
+					"details": "Doesn't set the details, but just instantiates an order",
+					"params": {
+						"_deliverydate": "Adds the delivery date to the present block timestamp"
+					}
+				},
+				"editOrder(uint256,string,uint256)": {
+					"details": "Uses keccak256 hashing since Solidity can't compare strings",
+					"params": {
+						"_ingredient": "Specifies the ingredient which quantity will be changed",
+						"_qty": "Specifies the new quantity of the ingredient specified",
+						"orderId": "Specifies the order"
+					}
+				},
+				"getIngredientsList(uint256)": {
+					"params": {
+						"orderId": "The ID of the order that needs to be referenced"
+					},
+					"returns": {
+						"_0": "ingredients The list of ingredients of the order"
+					}
+				},
+				"orderArrived(uint256)": {
+					"details": "Changes issueStatus to UnderInvestigation for quality check",
+					"params": {
+						"orderId": "Specifies the order ID "
+					}
+				},
+				"shipOrder(uint256)": {
+					"params": {
+						"orderId": "Specifies the order ID "
+					}
+				},
+				"viewOrder(uint256)": {
+					"params": {
+						"orderId": "Specifies the order ID "
+					},
+					"returns": {
+						"_0": "orders information given the orderId"
+					}
+				}
+			},
 			"version": 1
 		},
 		"userdoc": {
 			"kind": "user",
-			"methods": {},
+			"methods": {
+				"addIngredient(uint256,string,uint256)": {
+					"notice": "Adds ingredient to the present order"
+				},
+				"checkDeliveryStatus(uint256)": {
+					"notice": "Checks the status of the delivery"
+				},
+				"checkoutOrder(uint256)": {
+					"notice": "Checks out the specified order and accepts payment at the same time"
+				},
+				"computePrice(uint256)": {
+					"notice": "Computes the price of the order"
+				},
+				"copyLastOrder(uint256)": {
+					"notice": "Copies last order for repeat orders"
+				},
+				"createOrder(uint256)": {
+					"notice": "Creates a new order"
+				},
+				"editOrder(uint256,string,uint256)": {
+					"notice": "Edit the quantity of the specified ingredient in the order"
+				},
+				"getIngredientsList(uint256)": {
+					"notice": "Returns the ingredients for the specified order"
+				},
+				"orderArrived(uint256)": {
+					"notice": "Changes delivery status to arrived"
+				},
+				"shipOrder(uint256)": {
+					"notice": "changes delivery status to shipped"
+				},
+				"viewOrder(uint256)": {
+					"notice": "Views the details of the order"
+				}
+			},
 			"version": 1
 		}
 	},
 	"settings": {
 		"compilationTarget": {
-			"contracts/Testing.sol": "IngredientTracker"
+			"contracts/IngredientTracker.sol": "IngredientTracker"
 		},
 		"evmVersion": "prague",
 		"libraries": {},
@@ -549,12 +661,12 @@
 		"remappings": []
 	},
 	"sources": {
-		"contracts/Testing.sol": {
-			"keccak256": "0x0210170c8f206fbd1fb53b6d727f4250f9493ae38afce1ff81cfe90d606a0ed7",
+		"contracts/IngredientTracker.sol": {
+			"keccak256": "0xc59c0b76da290a280daeb88d573a35c3ed9d76a89c926ae0c91e5a9cec0519f3",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://3423f78521fc7950703e8e63693dcb44c3b434ca3e4e5db696536be0a1c33150",
-				"dweb:/ipfs/QmVintQQ1DxQQWEwVEqojF4erZFNDZyTYykpRBpycjH7Ta"
+				"bzz-raw://e1c2ce2a028bb75284a0957985a1afea089895bf74b4fa84622dfadc69215c9f",
+				"dweb:/ipfs/QmcTHWTQABMPBhiULFm9Lx2QAHesN2xFMvArrrv4tgEtMH"
 			]
 		}
 	},
