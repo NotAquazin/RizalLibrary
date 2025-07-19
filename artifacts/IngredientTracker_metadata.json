@@ -21,6 +21,11 @@
 						"internalType": "address",
 						"name": "_parent",
 						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_expiryDate",
+						"type": "uint256"
 					}
 				],
 				"stateMutability": "nonpayable",
@@ -45,6 +50,19 @@
 					}
 				],
 				"name": "addIngredient",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					}
+				],
+				"name": "cancelOrder",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -160,7 +178,7 @@
 								"type": "uint256"
 							}
 						],
-						"internalType": "struct IngredientTracker.Stock[]",
+						"internalType": "struct IngredientTracker.Item[]",
 						"name": "",
 						"type": "tuple[]"
 					}
@@ -177,19 +195,6 @@
 					}
 				],
 				"name": "orderArrived",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "orderId",
-						"type": "uint256"
-					}
-				],
-				"name": "orderCompleted",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -266,11 +271,6 @@
 						"type": "uint8"
 					},
 					{
-						"internalType": "bool",
-						"name": "terminated",
-						"type": "bool"
-					},
-					{
 						"internalType": "string",
 						"name": "rejectionReason",
 						"type": "string"
@@ -283,11 +283,11 @@
 				"inputs": [
 					{
 						"internalType": "uint256",
-						"name": "orderId",
+						"name": "newDate",
 						"type": "uint256"
 					}
 				],
-				"name": "placeOrderDetails",
+				"name": "renewContract",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -300,14 +300,14 @@
 						"type": "uint256"
 					},
 					{
-						"internalType": "string[]",
-						"name": "ingredients",
-						"type": "string[]"
+						"internalType": "string",
+						"name": "_ingredient",
+						"type": "string"
 					},
 					{
-						"internalType": "uint256[]",
-						"name": "quantities",
-						"type": "uint256[]"
+						"internalType": "uint256",
+						"name": "_qty",
+						"type": "uint256"
 					}
 				],
 				"name": "reportIssue",
@@ -336,14 +336,40 @@
 						"type": "uint256"
 					}
 				],
+				"name": "settlePayment",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					}
+				],
 				"name": "shipOrder",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "orderId",
+						"type": "uint256"
+					}
+				],
+				"name": "submitIssue",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
 				"inputs": [],
-				"name": "updateIngredients",
+				"name": "terminateContract",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -401,7 +427,7 @@
 										"type": "uint256"
 									}
 								],
-								"internalType": "struct IngredientTracker.Stock[]",
+								"internalType": "struct IngredientTracker.Item[]",
 								"name": "ingredients",
 								"type": "tuple[]"
 							},
@@ -418,7 +444,7 @@
 										"type": "uint256"
 									}
 								],
-								"internalType": "struct IngredientTracker.Stock[]",
+								"internalType": "struct IngredientTracker.Item[]",
 								"name": "damagedItems",
 								"type": "tuple[]"
 							},
@@ -453,11 +479,6 @@
 								"type": "uint8"
 							},
 							{
-								"internalType": "bool",
-								"name": "terminated",
-								"type": "bool"
-							},
-							{
 								"internalType": "string",
 								"name": "rejectionReason",
 								"type": "string"
@@ -483,6 +504,10 @@
 				],
 				"stateMutability": "view",
 				"type": "function"
+			},
+			{
+				"stateMutability": "payable",
+				"type": "receive"
 			}
 		],
 		"devdoc": {
@@ -498,7 +523,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"contracts/IngredientTracker.sol": "IngredientTracker"
+			"contracts/Testing.sol": "IngredientTracker"
 		},
 		"evmVersion": "prague",
 		"libraries": {},
@@ -507,17 +532,17 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 20
+			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
-		"contracts/IngredientTracker.sol": {
-			"keccak256": "0x0d3ddc79aad600400aaad32008d83025ac48ab5eca1167392549e57f126b3bf6",
+		"contracts/Testing.sol": {
+			"keccak256": "0x234e303b5c9944f3b6589736f1aa35f8c925197ff4c41170cde1a30b644917c9",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://691db06c6298f6e3f90f456b63b71dcb792058b1de04f6f84134b8133130a46c",
-				"dweb:/ipfs/QmdBwDTaYXBGmgqdmvUUnFQKMDBwLNYgpwvaPYUDWqEvFW"
+				"bzz-raw://4a2ff5c4f1c10b71634ebef9656997e1b4a1de3895da9256d81f20850dd1662f",
+				"dweb:/ipfs/QmToJRwUSacuB9EBzqNvE5Gt6xAQU5LMQLcPNU7XN75W7B"
 			]
 		}
 	},

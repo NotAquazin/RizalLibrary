@@ -54,9 +54,9 @@
 						"type": "string"
 					},
 					{
-						"internalType": "int256",
+						"internalType": "uint256",
 						"name": "_contractDuration",
-						"type": "int256"
+						"type": "uint256"
 					},
 					{
 						"internalType": "int256",
@@ -166,6 +166,25 @@
 			{
 				"inputs": [
 					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "isAuthorizedChild",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
 						"internalType": "string",
 						"name": "_ingredient",
 						"type": "string"
@@ -202,6 +221,24 @@
 			{
 				"inputs": [
 					{
+						"internalType": "string",
+						"name": "_ingredient",
+						"type": "string"
+					},
+					{
+						"internalType": "int256",
+						"name": "_reduceQty",
+						"type": "int256"
+					}
+				],
+				"name": "stockSold",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
 						"internalType": "address",
 						"name": "",
 						"type": "address"
@@ -220,9 +257,9 @@
 						"type": "string"
 					},
 					{
-						"internalType": "int256",
+						"internalType": "uint256",
 						"name": "contractDuration",
-						"type": "int256"
+						"type": "uint256"
 					},
 					{
 						"internalType": "int256",
@@ -362,9 +399,9 @@
 								"type": "string[]"
 							},
 							{
-								"internalType": "int256",
+								"internalType": "uint256",
 								"name": "contractDuration",
-								"type": "int256"
+								"type": "uint256"
 							},
 							{
 								"internalType": "int256",
@@ -399,7 +436,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"contracts/IngredientTracker.sol": "SupplierContractHub"
+			"contracts/Testing.sol": "SupplierContractHub"
 		},
 		"evmVersion": "prague",
 		"libraries": {},
@@ -408,17 +445,17 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 20
+			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
-		"contracts/IngredientTracker.sol": {
-			"keccak256": "0x0d3ddc79aad600400aaad32008d83025ac48ab5eca1167392549e57f126b3bf6",
+		"contracts/Testing.sol": {
+			"keccak256": "0x234e303b5c9944f3b6589736f1aa35f8c925197ff4c41170cde1a30b644917c9",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://691db06c6298f6e3f90f456b63b71dcb792058b1de04f6f84134b8133130a46c",
-				"dweb:/ipfs/QmdBwDTaYXBGmgqdmvUUnFQKMDBwLNYgpwvaPYUDWqEvFW"
+				"bzz-raw://4a2ff5c4f1c10b71634ebef9656997e1b4a1de3895da9256d81f20850dd1662f",
+				"dweb:/ipfs/QmToJRwUSacuB9EBzqNvE5Gt6xAQU5LMQLcPNU7XN75W7B"
 			]
 		}
 	},
